@@ -7,6 +7,7 @@ The `requirements.txt` file has list of all Python libraries which are required 
 ## How to create a new scrapy project?
 Enter a directory where you’d like to store your code and run:
 > `scrapy startproject amazon_product_scraping`
+<br/>
 This will create a directory with the name of amazon_product_scraping in the same directory with following contents:
 ```
 amazon_product_scraping/
