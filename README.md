@@ -38,4 +38,5 @@ Now to create spider, we have two different options.
 
 If you want to use the default utility called genspider to create spider in the framework. It will automatically create a class with a default template in the spiders directory. In order to create a spider, we can use the command below.
 > scrapy genspider AmazonProductSpider amazon.in
+
 Where **AmazonProductSpider** is the spider name and **amazon.in** is the URL of the site or domain that we are going to scrape data from. We will extract product data for shampoo category from amazon.in. 
