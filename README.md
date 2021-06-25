@@ -29,12 +29,13 @@ The project structure which scrapy creates for a user has,
 * **pipelines.py:** It contains a set of Python classes to process scraped data further.
 * **settings.py:** Any customized settings can be added to this file.
 * **spiders:**  This directory contains all the spiders in the form of a python class. Whenever Scrapy is requested to run, it will be searched in this folder.
-## How to create first spider?
+## How to create a spider?
 Now to create spider, we have two different options.
 
 1) We can create a simple Python class in the spiders directory and import essential modules to it.
 
 2) We can use the default utility which is provided by the scrapy framework itself.
 
-If you want to use the default utility called genspider to create spider in the framework. It will automatically create a class with a default template in the spiders directory. In order to create a Spider, we can use the command below.
+If you want to use the default utility called genspider to create spider in the framework. It will automatically create a class with a default template in the spiders directory. In order to create a spider, we can use the command below.
 > scrapy genspider AmazonProductSpider amazon.in
+Where **AmazonProductSpider** is the spider name and **amazon.in** is the URL of the site or domain that we are going to scrape data from. We will extract product data for shampoo category from amazon.in. 
