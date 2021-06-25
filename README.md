@@ -22,4 +22,4 @@ amazon_product_scraping/
             __init__.py
 ```
 The project structure which scrapy creates for a user has,
-<bullet>
+* scrapy.cfg: It is a project configuration file which contains information for setting module for the project along with its deployment information.
