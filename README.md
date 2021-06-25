@@ -40,3 +40,5 @@ If you want to use the default utility called genspider to create spider in the 
 > scrapy genspider AmazonProductSpider amazon.in
 
 Where **AmazonProductSpider** is the spider name and **amazon.in** is the URL of the site or domain that we are going to scrape data from. We will extract product data for shampoo category from amazon.in. 
+
+The python file `AmazonProductSpider.py` will save under the **amazon_product_scraping/spiders** directory in your project. 
