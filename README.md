@@ -30,3 +30,12 @@ The project structure which scrapy creates for a user has,
 * **spiders:**  Spiders is a directory which contains all **spiders** as Python classes. Whenever one runs any spider then scrapy looks into this directory and tries to find the spider with its name provided by the user. Spiders define how a certain site or a group of sites will be scraped, including how to perform the crawl and how to extract data from their pages. 
 
 Spiders have to define three major attributes i.e start_urls which tells which URLs are to be scrapped, allowed_domains which defines only those domain names which need to scrape and parse is a method which is called when any response comes from lodged requests. These attributes are important because these constitute the base of Spider definitions.
+## How to create first spider?
+Now to create spider, we can have different options.
+
+1) We can create a simple Python class in the spiders directory and import essential modules to it.
+
+2) We can use the default utility which is provided by the scrapy framework itself.
+
+Here we are going to use the default utility called genspider to create spider in the framework. It will automatically create a class with a default template in the spiders directory.
+> scrapy genspider AmazonProductSpider
