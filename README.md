@@ -22,4 +22,9 @@ amazon_product_scraping/
             __init__.py
 ```
 The project structure which scrapy creates for a user has,
-* scrapy.cfg: It is a project configuration file which contains information for setting module for the project along with its deployment information.
+* **scrapy.cfg:** It is a project configuration file which contains information for setting module for the project along with its deployment information.
+* **amazon_product_scraping:** It is an application directory with many different files that are actually responsible for running and scraping data from web URLs.
+* **items.py:** Items are containers that will be loaded with the scraped data; they work like simple Python dicts. They are declared by creating a **scrapy.Item** class and defining its attributes as **scrapy.Field** objects.
+* **pipelines.py:** After an item has been scraped by a spider, it is sent to the Item Pipeline which processes it through several components that are executed sequentially. Each item pipeline component is a Python class that has to implement a method called **process_item** to process scraped items. It receives an item and performs an action on it, also decides if the item should continue through the pipeline or should be dropped and not processed any longer. If it wants to drop an item then it raises **DropItem** exception to drop it.
+* **settings.py:** It allows one to customize the behavior of all Scrapy components, including the core, extensions, pipelines, and spiders themselves. It provides a global namespace of key-value mappings that the code can use to pull configuration values from.
+* **spiders:**  Spiders is a directory which contains all **spiders** as Python classes. Whenever one runs any spider then scrapy looks into this directory and tries to find the spider with its name provided by the user. Spiders define how a certain site or a group of sites will be scraped, including how to perform the crawl and how to extract data from their pages. 
