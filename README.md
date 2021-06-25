@@ -21,3 +21,5 @@ amazon_product_scraping/
         spiders/
             __init__.py
 ```
+The project structure which scrapy creates for a user has,
+<bullet>
