@@ -46,9 +46,8 @@ The python file `AmazonProductSpider.py` will save under the **amazon_product_sc
 In the created **AmazonProductSpider**, we need to define its name and **allowed_domains** & **start_urls** are created based on the link we provided when we created the spider.
 The logic for extracting our data have written in the different functions. We also need to implement a parse method. In the parse method, an item object is defined and is filled with required information.
 ## How to run spider?
-Before running the spider we need to add **ITEM_PIPELINES = {
-    "amazon_product_scraping.pipelines.AmazonProductScrapingPipeline": 300,
-}** in the python file `settings.py`.
+Before running the spider we need to add **ITEM_PIPELINES = {"amazon_product_scraping.pipelines.AmazonProductScrapingPipeline": 300,}** in the python file `settings.py`.
+
 Go to the project's directory and run the following command:
 > scrapy crawl AmazonProductSpider
 
