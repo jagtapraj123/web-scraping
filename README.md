@@ -8,7 +8,7 @@ The `requirements.txt` file has list of all Python libraries which are required 
 Enter a directory where you’d like to store your code and run:
 > `scrapy startproject amazon_product_scraping`
 
-This will create a directory with the name of amazon_product_scraping in the same directory with the following contents:
+Where **amazon_product_scraping** is the scrapy project name. This will create a directory with the name of amazon_product_scraping in the same directory with the following contents:
 ```
 amazon_product_scraping/
     scrapy.cfg
@@ -41,4 +41,14 @@ If you want to use the default utility called genspider to create spider in the 
 
 Where **AmazonProductSpider** is the spider name and **amazon.in** is the URL of the site or domain that we are going to scrape data from. We will extract product data for shampoo category from amazon.in. 
 
-The python file `AmazonProductSpider.py` will save under the **amazon_product_scraping/spiders** directory in your project. 
+The python file `AmazonProductSpider.py` will save under the **amazon_product_scraping/spiders** directory in your project. <br/>
+In the created **AmazonProductSpider**, we need to define its name and **allowed_domains** & **start_urls** are created based on the link we provided when we created the spider.
+The logic for extracting our data have written in the different functions. We also need to implement a parse method. In the parse method, an item object is defined and is filled with required information.
+## How to run spider?
+Before running the spider we need to add **ITEM_PIPELINES = {
+    "amazon_product_scraping.pipelines.AmazonProductScrapingPipeline": 300,
+}** in the python file `settings.py`.
+Go to the project's directory and run the following command:
+> scrapy crawl AmazonProductSpider
+
+This command runs the spider with name **AmazonProductSpider**.
