@@ -22,8 +22,7 @@ ITEM_PIPELINES = {
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
 MONGO_URI = "mongodb://localhost:27017"
-MONGO_DATABASE = "amazon_scraped_product_data"
-MONGODB_COLLECTION = "product_data"
+MONGO_DATABASE = "amazon_product_data_scraping"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'amazon_product_scraping (+http://www.yourdomain.com)'

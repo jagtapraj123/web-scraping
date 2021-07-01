@@ -11,7 +11,7 @@ from itemadapter import ItemAdapter
 
 
 class MongoDBPipeline:
-    collection_name = "product_data"
+    collection_name = "demo"
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
@@ -32,5 +32,14 @@ class MongoDBPipeline:
         self.client.close()
 
     def process_item(self, item, spider):
-        self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
-        return item
+        if spider.name == "amazon_product_data":
+            self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+            return item
+
+        if spider.name == "get_price_BSR_recurrent":
+            self.db[self.collection_name].find_one_and_update(
+                {"product_asin": item["product_asin"]},
+                {"$push": {'product_sale_price': item["product_sale_price"], 'product_best_seller_rank': item["product_best_seller_rank"]}},
+                upsert=True
+            )
+            return item
