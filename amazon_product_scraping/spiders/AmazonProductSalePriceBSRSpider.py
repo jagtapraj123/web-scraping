@@ -28,15 +28,6 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         title = "".join(title_xpath_text).strip()
         return title
 
-    def get_brand(self, response):
-        brand = (
-            response.xpath(
-                '//td[@class="a-span9"]//span[@class="a-size-base"]/text()'
-            ).extract_first()
-            or "NA"
-        )
-        return brand
-
     def get_sale_price(self, response):
         sale_price_xpath_text = (
             response.xpath(
@@ -56,17 +47,6 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         sale_price["value"] = sale_price_strip
         return sale_price
 
-    def get_offers(self, response):
-        offers_xpath_text = response.xpath(
-            '//span[@class="saving-prompt"]/text()'
-        ).extract()
-        if offers_xpath_text:
-            offers_strip = "".join(offers_xpath_text).strip()
-            offers = str(int(re.search(r"\d+", offers_strip).group()))
-            return offers
-        else:
-            return "NA"
-
     def get_original_price(self, response):
         original_price_xpath_text = (
             response.xpath(
@@ -80,61 +60,6 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             .replace("\u20b9", "")
         )
         return original_price
-
-    def get_fullfilled(self, response):
-        if response.xpath('//span[@class="a-icon-text-fba"]/text()').extract_first():
-            fullfilled = response.xpath(
-                '//span[@class="a-icon-text-fba"]/text()'
-            ).extract_first()
-            return fullfilled
-        elif (
-            "Fulfilled by Amazon"
-            in response.xpath('//div[@id="merchant-info"]//a/text()').extract()
-        ):
-            return "Fulfilled"
-        elif (
-            "fulfilled"
-            in response.xpath('//div[@id="merchant-info"]/text()').extract_first()
-        ):
-            return "Fulfilled"
-        else:
-            return "NA"
-
-    def get_rating(self, response):
-        rating = response.xpath('//*[@id="acrPopover"]/@title').extract_first() or "NA"
-        return rating
-
-    def get_total_reviews(self, response):
-        total_reviews = (
-            response.xpath('//*[@id="acrCustomerReviewText"]/text()').extract_first()
-            or "NA"
-        )
-        return total_reviews
-
-    def get_availability(self, response):
-        availability_xpath_text = (
-            response.xpath('//div[@id="availability"]//text()').extract() or "NA"
-        )
-        availability = (
-            ("".join(availability_xpath_text).strip()).replace("\n", "")
-        ).split(".")[0]
-        return availability
-
-    def get_category(self, response):
-        category_xpath_text = response.xpath(
-            '//a[@class="a-link-normal a-color-tertiary"]/text()'
-        ).extract()
-        category = [i.strip() for i in category_xpath_text]
-        return category
-
-    def get_icons(self, response):
-        icons_xpath_text = response.xpath(
-            '//a[@class="a-size-small a-link-normal a-text-normal"]/text()'
-        ).extract()
-        icons = []
-        for i in icons_xpath_text:
-            icons.append(i.strip())
-        return icons
 
     def get_best_seller_rank(self, response):
         product_details_xpath_text = response.xpath(
@@ -195,76 +120,9 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             best_seller_rank["value"] = seller_rank
             return best_seller_rank
 
-    def get_product_details(self, response):
-        product_details_xpath_text = response.xpath(
-            '//div[@id="detailBullets_feature_div"]//span/text()'
-        ).getall()
-        if product_details_xpath_text:
-            product_details_strip = [
-                i.strip().replace("\n", "") for i in product_details_xpath_text
-            ]
-            product_details = [
-                i.replace("\u200f", "").replace("\u200e", "")
-                for i in product_details_strip
-                if i != ""
-            ]
-            if "Best Sellers Rank:" in product_details:
-                index_best_seller_rank = product_details.index("Best Sellers Rank:")
-                product_details = product_details[0:index_best_seller_rank]
-            else:
-                if "Customer Reviews:" in product_details:
-                    index_best_seller_rank = product_details.index("Customer Reviews:")
-                    product_details = product_details[0:index_best_seller_rank]
-            details = {}
-            i = 0
-            while i < len(product_details):
-                details[product_details[i].replace(":", "")] = product_details[i + 1]
-                i += 2
-            if self.get_best_seller_rank(response)["value"] != "NA":
-                details["Best Sellers Rank"] = self.get_best_seller_rank(response)[
-                    "value"
-                ]
-            if (
-                self.get_rating(response) != "NA"
-                and self.get_total_reviews(response) != "NA"
-            ):
-                details["Customer Reviews"] = " ".join(
-                    [self.get_rating(response), self.get_total_reviews(response)]
-                )
-            return details
-        return {}
-
     def get_asin(self, response):
         asin = response.xpath("//*[@data-asin]").xpath("@data-asin").extract_first()
         return asin
-
-    def get_important_information(self, response):
-        important_information_xpath_text = (
-            response.xpath(
-                '//div[@id="important-information"]//div[@class="a-section content"]//p/text()'
-            ).extract()
-            or "NA"
-        )
-        important_information = "".join(important_information_xpath_text)
-        return important_information
-
-    def get_product_description(self, response):
-        product_description_xpath_text = (
-            response.xpath('//div[@id="productDescription"]//p/text()').extract()
-            or "NA"
-        )
-        product_description = "".join(product_description_xpath_text).strip()
-        return product_description
-
-    def get_bought_together(self, response):
-        bought_together_xpath_text = response.xpath(
-            '//div[@aria-hidden="true"]/text()'
-        ).extract()
-        bought_together_strip = [
-            i.strip().replace("\n", "") for i in bought_together_xpath_text
-        ]
-        bought_together = [i for i in bought_together_strip if i != ""]
-        return bought_together
 
     def get_subscription_discount(self, response):
         subscription_discount_xpath_text = response.xpath(
@@ -278,55 +136,21 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
                 return subscription_discount
         return "NA"
 
-    def get_variations(self, response):
-        variations = (
-            response.xpath(
-                '//div[@id="variation_pattern_name"]//img[@class="imgSwatch"]'
-            )
-            .xpath("@alt")
-            .getall()
-        )
-        return variations
-
     def parse(self, response):
         items = AmazonProductScrapingItem()
+
         title = self.get_title(response)
-        brand = self.get_brand(response)
         sale_price = self.get_sale_price(response)
-        offers = self.get_offers(response)
         original_price = self.get_original_price(response)
-        fullfilled = self.get_fullfilled(response)
-        rating = self.get_rating(response)
-        total_reviews = self.get_total_reviews(response)
-        availability = self.get_availability(response)
-        category = self.get_category(response)
-        icons = self.get_icons(response)
         best_seller_rank = self.get_best_seller_rank(response)
-        product_details = self.get_product_details(response)
         asin = self.get_asin(response)
-        important_information = self.get_important_information(response)
-        product_description = self.get_product_description(response)
-        bought_together = self.get_bought_together(response)
         subscription_discount = self.get_subscription_discount(response)
-        variations = self.get_variations(response)
 
         items["product_name"] = title
-        items["product_brand"] = brand
         items["product_sale_price"] = sale_price
-        items["product_offers"] = offers
         items["product_original_price"] = original_price
-        items["product_fullfilled"] = fullfilled
-        items["product_rating"] = rating
-        items["product_total_reviews"] = total_reviews
-        items["product_availability"] = availability
-        items["product_category"] = category
-        items["product_icons"] = icons
         items["product_best_seller_rank"] = best_seller_rank
-        items["product_details"] = product_details
         items["product_asin"] = asin
-        items["product_important_information"] = important_information
-        items["product_description"] = product_description
-        items["product_bought_together"] = bought_together
         items["product_subscription_discount"] = subscription_discount
-        items["product_variations"] = variations
+
         yield items

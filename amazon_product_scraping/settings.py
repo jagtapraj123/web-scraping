@@ -25,12 +25,6 @@ MONGO_URI = "mongodb://localhost:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = 'amazon_product_scraping (+http://www.yourdomain.com)'
-# USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
-# USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36"
-# USER_AGENT = 'amazon_product_scraping (+https://www.example.com)'
-# USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
-# USER_AGENT = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'
 USER_AGENT = [
     ("amazon_product_scraping (+http://www.yourdomain.com)"),
     (
@@ -64,7 +58,7 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 # DOWNLOAD_TIMEOUT = 540
-# DOWNLOAD_DELAY = 5 #3
+DOWNLOAD_DELAY = 5  # 3
 # DEPTH_LIMIT = 10
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
