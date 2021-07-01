@@ -33,7 +33,11 @@ class MongoDBPipeline:
 
     def process_item(self, item, spider):
         if spider.name == "amazon_product_data":
-            self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+            existing_item = self.db[self.collection_name].find_one(
+                {"product_asin": item["product_asin"]})
+            if not existing_item:
+                self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+                return item
             return item
 
         if spider.name == "get_price_BSR_recurrent":
