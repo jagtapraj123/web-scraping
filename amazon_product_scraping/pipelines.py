@@ -11,7 +11,7 @@ from itemadapter import ItemAdapter
 
 
 class MongoDBPipeline:
-    collection_name = "demo"
+    collection_name = "product_data"
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
@@ -41,8 +41,8 @@ class MongoDBPipeline:
                 {"product_asin": item["product_asin"]},
                 {
                     "$push": {
-                        "product_sale_price": item["product_sale_price"],
-                        "product_best_seller_rank": item["product_best_seller_rank"],
+                        "product_sale_price": item["product_sale_price"][0],
+                        "product_best_seller_rank": item["product_best_seller_rank"][0],
                     }
                 },
                 upsert=True,
