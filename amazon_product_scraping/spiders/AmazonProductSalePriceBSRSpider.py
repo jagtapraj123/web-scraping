@@ -2,6 +2,7 @@ import scrapy
 import re
 from amazon_product_scraping.items import AmazonProductScrapingItem
 from datetime import datetime
+from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonScrapingHelper
 
 
 class AmazonProductSalePriceBSRSpider(scrapy.Spider):
@@ -21,130 +22,18 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     start_urls = ["http://amazon.in/dp/B08T3325CD"]
     # start_urls = ['http://amazon.in/dp/B07L3ZCJ53', 'http://amazon.in/dp/B07L3YNL2V', 'http://amazon.in/dp/B08T2Y2Q4T', 'http://amazon.in/dp/B08CSHBPD5', 'http://amazon.in/dp/B07H9SV624', 'http://amazon.in/dp/B07HB4FKZS', 'http://amazon.in/dp/B00ENZRCBI', 'http://amazon.in/dp/B00JS3PICK', 'http://amazon.in/dp/B07YWMQWWK', 'http://amazon.in/dp/B07YWMQRNJ']
 
-    def get_title(self, response):
-        title_xpath_text = response.xpath(
-            '//h1[@id="title"]//span/text()'
-        ).extract_first()
-        title = "".join(title_xpath_text).strip()
-        return title
 
-    def get_sale_price(self, response):
-        sale_price_xpath_text = (
-            response.xpath(
-                '//span[contains(@id,"priceblock_dealprice") or contains(@id,"priceblock_ourprice")]/text()'
-            ).extract()
-            or "NA"
-        )
-        sale_price_strip = (
-            ("".join(sale_price_xpath_text).strip())
-            .replace("\xa0", "")
-            .replace("\u20b9", "")
-        )
-        now = datetime.now()
-        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        sale_price = {}
-        sale_price["time"] = current_time
-        sale_price["value"] = sale_price_strip
-        return sale_price
-
-    def get_original_price(self, response):
-        original_price_xpath_text = (
-            response.xpath(
-                '//span[@class="priceBlockStrikePriceString a-text-strike"]/text()'
-            ).extract()
-            or "NA"
-        )
-        original_price = (
-            ("".join(original_price_xpath_text).strip())
-            .replace("\xa0", "")
-            .replace("\u20b9", "")
-        )
-        return original_price
-
-    def get_best_seller_rank(self, response):
-        product_details_xpath_text = response.xpath(
-            '//div[@id="detailBullets_feature_div"]//span/text()'
-        ).getall()
-        if product_details_xpath_text:
-            product_details_strip = [
-                i.strip().replace("\n", "") for i in product_details_xpath_text
-            ]
-            product_details = [
-                i.replace("\u200f", "").replace("\u200e", "")
-                for i in product_details_strip
-                if i != ""
-            ]
-            if "Best Sellers Rank:" in product_details:
-                seller_rank_1_xpath_text = response.xpath(
-                    '//div[@id="detailBullets_feature_div"]//span[@class="a-list-item"]/text()'
-                ).getall()
-                seller_rank_2_xpath_text = response.xpath(
-                    '//div[@id="detailBullets_feature_div"]//span[@class="a-list-item"]//a/text()'
-                ).getall()
-                seller_rank_1_strip = [
-                    i.strip().replace("\n", "").replace("(", "").replace(")", "")
-                    for i in seller_rank_1_xpath_text
-                ]
-                seller_rank_1 = [i for i in seller_rank_1_strip if i != ""]
-                seller_rank_2_strip = [
-                    i.strip().replace("\n", "") for i in seller_rank_2_xpath_text
-                ]
-                seller_rank_2 = [i for i in seller_rank_2_strip if i != ""]
-                first_element_seller_rank = ["(", seller_rank_2[0], ")"]
-                seller_rank_2[0] = "".join(first_element_seller_rank)
-                seller_rank_list = []
-                for i, j in zip(seller_rank_1, seller_rank_2):
-                    seller_rank_list.append(i)
-                    seller_rank_list.append(j)
-                seller_rank = " ".join(seller_rank_list)
-                now = datetime.now()
-                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-                best_seller_rank = {}
-                best_seller_rank["time"] = current_time
-                best_seller_rank["value"] = seller_rank
-                return best_seller_rank
-            else:
-                seller_rank = "NA"
-                now = datetime.now()
-                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-                best_seller_rank = {}
-                best_seller_rank["time"] = current_time
-                best_seller_rank["value"] = seller_rank
-                return best_seller_rank
-        else:
-            seller_rank = "NA"
-            now = datetime.now()
-            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-            best_seller_rank = {}
-            best_seller_rank["time"] = current_time
-            best_seller_rank["value"] = seller_rank
-            return best_seller_rank
-
-    def get_asin(self, response):
-        asin = response.xpath("//*[@data-asin]").xpath("@data-asin").extract_first()
-        return asin
-
-    def get_subscription_discount(self, response):
-        subscription_discount_xpath_text = response.xpath(
-            '//tr[contains(@id,"regularprice_savings") or contains(@id,"dealprice_savings")]//td[@class="a-span12 a-color-price a-size-base priceBlockSavingsString"]/text()'
-        ).extract_first()
-        if subscription_discount_xpath_text:
-            if len((subscription_discount_xpath_text.strip()).split("(")) != 1:
-                subscription_discount = (
-                    (subscription_discount_xpath_text.strip()).split("(")[1]
-                ).split(")")[0]
-                return subscription_discount
-        return "NA"
 
     def parse(self, response):
         items = AmazonProductScrapingItem()
-
-        title = self.get_title(response)
-        sale_price = self.get_sale_price(response)
-        original_price = self.get_original_price(response)
-        best_seller_rank = self.get_best_seller_rank(response)
-        asin = self.get_asin(response)
-        subscription_discount = self.get_subscription_discount(response)
+        helper = AmazonScrapingHelper()
+        
+        title = helper.get_title(response)
+        sale_price = helper.get_sale_price(response)
+        original_price = helper.get_original_price(response)
+        best_seller_rank = helper.get_best_seller_rank(response)
+        asin = helper.get_asin(response)
+        subscription_discount = helper.get_subscription_discount(response)
 
         items["product_name"] = title
         items["product_sale_price"] = sale_price
