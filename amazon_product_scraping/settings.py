@@ -22,7 +22,7 @@ ITEM_PIPELINES = {
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
 MONGO_URI = "mongodb://localhost:27017"
-MONGO_DATABASE = "amazon_product_data_scraping"
+MONGO_DATABASE = "amazon_scraped_product_data"
 MONGODB_COLLECTION = "product_data"
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -32,6 +32,7 @@ MONGODB_COLLECTION = "product_data"
 # USER_AGENT = 'amazon_product_scraping (+https://www.example.com)'
 # USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
 # USER_AGENT = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'
+USER_AGENT = [('amazon_product_scraping (+http://www.yourdomain.com)'), ('Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'), ('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'), ('amazon_product_scraping (+https://www.example.com)'), ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'), ('Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'), ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'), ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36')]
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -72,6 +73,9 @@ ROBOTSTXT_OBEY = True
 # DOWNLOADER_MIDDLEWARES = {
 #    'amazon_product_scraping.middlewares.AmazonProductScrapingDownloaderMiddleware': 543,
 # }
+DOWNLOADER_MIDDLEWARES = {
+    'amazon_product_scraping.middlewares.RotateUserAgentMiddleware': 110,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

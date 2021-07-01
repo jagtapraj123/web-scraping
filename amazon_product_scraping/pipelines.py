@@ -11,7 +11,7 @@ from itemadapter import ItemAdapter
 
 
 class MongoDBPipeline:
-    collection_name = "test"
+    collection_name = "product_data"
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
