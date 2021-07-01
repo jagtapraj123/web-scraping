@@ -31,7 +31,28 @@ MONGO_DATABASE = "amazon_product_data_scraping"
 # USER_AGENT = 'amazon_product_scraping (+https://www.example.com)'
 # USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
 # USER_AGENT = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'
-USER_AGENT = [('amazon_product_scraping (+http://www.yourdomain.com)'), ('Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'), ('Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'), ('amazon_product_scraping (+https://www.example.com)'), ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'), ('Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'), ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'), ('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36')]
+USER_AGENT = [
+    ("amazon_product_scraping (+http://www.yourdomain.com)"),
+    (
+        "Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
+    ),
+    (
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36"
+    ),
+    ("amazon_product_scraping (+https://www.example.com)"),
+    (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+    ),
+    (
+        "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
+    ),
+    (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36"
+    ),
+    (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36"
+    ),
+]
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -73,29 +94,29 @@ ROBOTSTXT_OBEY = True
 #    'amazon_product_scraping.middlewares.AmazonProductScrapingDownloaderMiddleware': 543,
 # }
 DOWNLOADER_MIDDLEWARES = {
-    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
-    'scrapy_fake_useragent.middleware.RandomUserAgentMiddleware': 400,
-    'scrapy_fake_useragent.middleware.RetryUserAgentMiddleware': 401,
+    "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+    "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+    "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
+    "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
     # 'amazon_product_scraping.middlewares.RotateUserAgentMiddleware': 110,
 }
 FAKEUSERAGENT_PROVIDERS = [
-    'scrapy_fake_useragent.providers.FakeUserAgentProvider',  # this is the first provider we'll try
-    'scrapy_fake_useragent.providers.FakerProvider',  # if FakeUserAgentProvider fails, we'll use faker to generate a user-agent string for us
-    'scrapy_fake_useragent.providers.FixedUserAgentProvider',  # fall back to USER_AGENT value
+    "scrapy_fake_useragent.providers.FakeUserAgentProvider",  # this is the first provider we'll try
+    "scrapy_fake_useragent.providers.FakerProvider",  # if FakeUserAgentProvider fails, we'll use faker to generate a user-agent string for us
+    "scrapy_fake_useragent.providers.FixedUserAgentProvider",  # fall back to USER_AGENT value
 ]
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36'
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
 
 
 SPIDERMON_ENABLED = True
 SPIDERMON_MIN_ITEMS = 1
-SPIDERMON_ADD_FIELD_COVERAGE=True 
+SPIDERMON_ADD_FIELD_COVERAGE = True
 EXTENSIONS = {
-    'spidermon.contrib.scrapy.extensions.Spidermon': 500,
+    "spidermon.contrib.scrapy.extensions.Spidermon": 500,
 }
 
 SPIDERMON_SPIDER_CLOSE_MONITORS = (
-     'spidermon.contrib.scrapy.monitors.SpiderCloseMonitorSuite',
+    "spidermon.contrib.scrapy.monitors.SpiderCloseMonitorSuite",
     # 'spidermon.contrib.scrapy.monitors.ItemCountMonitor',
     # 'spidermon.contrib.scrapy.monitors.ErrorCountMonitor',
     # 'spidermon.contrib.scrapy.monitors.FinishReasonMonitor',

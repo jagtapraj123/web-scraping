@@ -39,7 +39,12 @@ class MongoDBPipeline:
         if spider.name == "get_price_BSR_recurrent":
             self.db[self.collection_name].find_one_and_update(
                 {"product_asin": item["product_asin"]},
-                {"$push": {'product_sale_price': item["product_sale_price"], 'product_best_seller_rank': item["product_best_seller_rank"]}},
-                upsert=True
+                {
+                    "$push": {
+                        "product_sale_price": item["product_sale_price"],
+                        "product_best_seller_rank": item["product_best_seller_rank"],
+                    }
+                },
+                upsert=True,
             )
             return item
