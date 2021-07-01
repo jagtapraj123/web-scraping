@@ -22,12 +22,10 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     start_urls = ["http://amazon.in/dp/B08T3325CD"]
     # start_urls = ['http://amazon.in/dp/B07L3ZCJ53', 'http://amazon.in/dp/B07L3YNL2V', 'http://amazon.in/dp/B08T2Y2Q4T', 'http://amazon.in/dp/B08CSHBPD5', 'http://amazon.in/dp/B07H9SV624', 'http://amazon.in/dp/B07HB4FKZS', 'http://amazon.in/dp/B00ENZRCBI', 'http://amazon.in/dp/B00JS3PICK', 'http://amazon.in/dp/B07YWMQWWK', 'http://amazon.in/dp/B07YWMQRNJ']
 
-
-
     def parse(self, response):
         items = AmazonProductScrapingItem()
         helper = AmazonScrapingHelper()
-        
+
         title = helper.get_title(response)
         sale_price = helper.get_sale_price(response)
         original_price = helper.get_original_price(response)
