@@ -1,5 +1,6 @@
 import scrapy
 import re
+import json
 from amazon_product_scraping.items import AmazonProductScrapingItem
 from datetime import datetime
 from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonScrapingHelper
@@ -10,9 +11,10 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     name = "get_price_BSR_recurrent"
     rotate_user_agent = True
     allowed_domains = ["amazon.in"]
-    with open("../amazon_product_scraping/configuration_file/config.json") as file:
+    with open("amazon_product_scraping/configuration_file/config.json") as file:
     	input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data['product_data']['old_data_file_path'])
+    # start_urls = ['http://amazon.in/dp/B08T3325CD', 'http://amazon.in/dp/B08CSHBPD5', 'http://amazon.in/dp/B08T2Y2Q4T']
     
     def parse(self, response):
         items = AmazonProductScrapingItem()

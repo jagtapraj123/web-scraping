@@ -1,6 +1,6 @@
 {
     "product_data":{
-        "new_data_file_path":"../amazon_product_scraping/data/InputData/amazon_product_data.csv",
-        "old_data_file_path":"../amazon_product_scraping/data/InputData/recurrent_saleprice_bsr.csv"
+        "new_data_file_path":"amazon_product_scraping/data/InputData/amazon_product_data.csv",
+        "old_data_file_path":"amazon_product_scraping/data/InputData/recurrent_saleprice_bsr.csv"
     }
 }
