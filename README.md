@@ -53,12 +53,68 @@ The `amazon_product_scraping/spiders` folder have two spiders `AmazonProductSpid
 ## pipelines.py
 The python file `amazon_product_scraping/pipelines.py` has a class `MongoDBPipeline` with MongoDB collection name `product_data` and different functions. The class `MongoDBPipeline` has implemented for saving the product data of amazon in the MongoDB.
 ## Run a Spider in the terminal
-Before running the spider we need to add **ITEM_PIPELINES = {"amazon_product_scraping.pipelines.MongoDBPipeline": 300,}** in the python file `settings.py`.
+Before running the spider we need to add the following lines in the python file `amazon_product_scraping/settings.py`.
+```
+ITEM_PIPELINES = {"amazon_product_scraping.pipelines.MongoDBPipeline": 300,}
+MONGO_URI = "mongodb://localhost:27017"
+MONGO_DATABASE = "amazon_product_data_scraping"
+```
+Where `mongodb://localhost:27017` is the uri of MongoDB and `amazon_product_data_scraping` is the database name of MongoDB.
 
 Go to the project's directory and run the following command:
 > `scrapy crawl amazon_product_data`
 
 This command runs the spider with name **amazon_product_data**.
+## Rotate User Agent
+### Installation
+To install `scrapy-fake-useragent` library using the following command:
+> `pip install scrapy-fake-useragent`
+
+This library have 2200 user agents and pick random user agent for each request.
+### Configuration
+We need to add the following lines in the python file `amazon_product_scraping/settings.py`.
+```
+DOWNLOADER_MIDDLEWARES = {
+    "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
+    "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
+    "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
+    "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
+}
+FAKEUSERAGENT_PROVIDERS = [
+    "scrapy_fake_useragent.providers.FakeUserAgentProvider",  # this is the first provider we'll try
+    "scrapy_fake_useragent.providers.FakerProvider",  # if FakeUserAgentProvider fails, we'll use faker to generate a user-agent string for us
+    "scrapy_fake_useragent.providers.FixedUserAgentProvider",  # fall back to USER_AGENT value
+]
+USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
+```
+We need to add the following line in both spiders.
+```
+rotate_user_agent = True
+```
+We also need to update the python file `amazon_product_scraping/middleware.py`.
+## Spidermon
+### Installation
+To install `spidermon` using the following command:
+> `pip install spidermon`
+### Enable Spidermon
+To enable Spidermon in the project, include the following lines in the python file `amazon_product_scraping/settings.py`.
+```
+SPIDERMON_ENABLED = True
+SPIDERMON_MIN_ITEMS = 1
+SPIDERMON_ADD_FIELD_COVERAGE = True
+EXTENSIONS = {
+    "spidermon.contrib.scrapy.extensions.Spidermon": 500,
+}
+```
+### Monitor
+Monitors are similar to test cases with a set of methods that are executed at well defined moments of the spider execution containing your monitoring logic.
+Create a new file called `monitors.py` that will contain the definition and configuration of your monitors in the folder `amazon_product_scraping`.
+This suite needs to be executed when the spider closes, so we include it in the SPIDERMON_SPIDER_CLOSE_MONITORS list in the python file `amazon_product_scraping/settings.py`.
+```
+SPIDERMON_SPIDER_CLOSE_MONITORS = (
+    "spidermon.contrib.scrapy.monitors.SpiderCloseMonitorSuite",
+)
+```
 ## Installation of Scrapyd
 To install `scrapyd` using the following command:
 > `pip install scrapyd`
