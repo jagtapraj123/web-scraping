@@ -10,12 +10,13 @@ from amazon_product_scraping.utils.FileHelper import FileHelper
 class AmazonProductSpider(scrapy.Spider):
 
     handle_httpstatus_all = True
-    name = "amazon_product_data"
+    name = "AmazonProductSpider"
     rotate_user_agent = True
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
     	input_data = json.load(file)
-    start_urls = [FileHelper.get_urls(input_data['product_data']['new_data_file_path'])[0]]
+    start_urls = FileHelper.get_urls(input_data['product_data']['new_data_file_path'])
+    # print(len(start_urls))
     # start_urls = ['http://amazon.in/dp/B08T2Y2Q4T', 'http://amazon.in/dp/B008KH5U28', 'http://amazon.in/dp/B006LXAG4K', 'http://amazon.in/dp/B00IF3W4DK']
     
     def parse(self, response):

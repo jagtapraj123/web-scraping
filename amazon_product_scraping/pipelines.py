@@ -32,7 +32,7 @@ class MongoDBPipeline:
         self.client.close()
 
     def process_item(self, item, spider):
-        if spider.name == "amazon_product_data":
+        if spider.name == "AmazonProductSpider":
             existing_item = self.db[self.collection_name].find_one(
                 {"product_asin": item["product_asin"]})
             if not existing_item:
@@ -40,7 +40,7 @@ class MongoDBPipeline:
                 return item
             return item
 
-        if spider.name == "get_price_BSR_recurrent":
+        if spider.name == "AmazonProductSalePriceBSRSpider":
             self.db[self.collection_name].find_one_and_update(
                 {"product_asin": item["product_asin"]},
                 {
