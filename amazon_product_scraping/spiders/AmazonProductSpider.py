@@ -10,7 +10,7 @@ from amazon_product_scraping.utils.FileHelper import FileHelper
 class AmazonProductSpider(scrapy.Spider):
 
     handle_httpstatus_all = True
-    name = "amazon_product_data"
+    name = "AmazonProductSpider"
     rotate_user_agent = True
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
