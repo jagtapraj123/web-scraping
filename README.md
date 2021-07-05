@@ -64,7 +64,7 @@ To deploy the project using the following command:
 > scrapyd-deploy default
 ## List of Spiders
 To get list of spiders using the following command:
-> curl http://localhost:6800/listspiders.json?project=<projectname>
+> curl http://localhost:6800/listspiders.json?project=amazon_product_scraping
 ## Run a Spider
 To run a spider using the following command:
-> curl http://localhost:6800/schedule.json -d project=<projectname> -d spider=<spidername>
+> curl http://localhost:6800/schedule.json -d project=amazon_product_scraping -d spider=amazon_product_data
