@@ -135,3 +135,12 @@ To get list of spiders using the following command:
 #### Run a Spider in the Scrapyd
 To run a spider using the following command:
 > `curl http://localhost:6800/schedule.json -d project=amazon_product_scraping -d spider=amazon_product_data`
+## Scrapydweb
+### Installation
+To install **scrapydweb** using the following command:
+> `pip install scrapydweb`
+
+After installing to start **scrapydweb** using the following command:
+> `scrapydweb`
+
+Visit **http://127.0.0.1:5000**
