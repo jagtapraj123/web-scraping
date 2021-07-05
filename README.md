@@ -142,5 +142,8 @@ To install **scrapydweb** using the following command:
 
 After installing to start **scrapydweb** using the following command:
 > `scrapydweb`
-
-Visit **http://127.0.0.1:5000**
+### Visit Web UI
+Visit **http://127.0.0.1:5000**.
+* The Servers page would automatically display the working status of all of your Scrapyd servers.
+* You can select any number of Scrapyd servers by grouping and filtering.
+* By default, ScrapydWeb would periodically create a snapshot of your scraping jobs and save it in the database to avoid losing the jobs info if the Scrapyd server is restarted. 
