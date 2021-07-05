@@ -55,6 +55,9 @@ This command runs the spider with name **AmazonProductSpider**.
 # Installation of Scrapyd
 To install `scrapyd` using the following command:
 > pip install scrapyd
+
+To start `scrapyd` using the following command:
+> scrapyd
 # Deploying a project
 ## Scrapyd-client
 Scrapyd-client is a client for Scrapyd. It provides the general `scrapyd-client` and the `scrapyd-deploy` utility which allows you to deploy your project to a Scrapyd server. To install `scrapyd-client` using the following command:
