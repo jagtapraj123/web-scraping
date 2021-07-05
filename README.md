@@ -43,23 +43,23 @@ The python file `AmazonProductSpider.py` will save under the **amazon_product_sc
 
 In the created **AmazonProductSpider**, we need to define its name and **allowed_domains** & **start_urls** are created based on the link we provided when we created the spider. We also need to implement a parse method. In the parse method, an item object is defined and is filled with required information.
 ## data
-The `amazon_product_scraping/data` folder have two folders `InputData` and `OutputData`. The folder `InputData` have two csv files `amazon_product_data.csv` and `recurrent_saleprice_bsr.csv`. The csv file `amazon_product_data.csv` has a column `URL` with new URLs of amazon product and the csv file `recurrent_saleprice_bsr.csv` has a column `URL` with old URLs of amazon product. The folder `OutputData` has a json file which have data of amazon product.
+The **amazon_product_scraping/data** folder have two folders **InputData** and **OutputData**. The folder **InputData** have two csv files `amazon_product_data.csv` and `recurrent_saleprice_bsr.csv`. The csv file `amazon_product_data.csv` has a column **URL** with new URLs of amazon product and the csv file `recurrent_saleprice_bsr.csv` has a column **URL** with old URLs of amazon product. The folder **OutputData** has a json file which have product data of amazon.
 ## configuration_file
-The `amazon_product_scraping/configuration_file` folder has a file `config.json`. This file have two relative path of both csv files in the `amazon_product_scraping/data/InputData` folder.
+The **amazon_product_scraping/configuration_file** folder has a file `config.json`. This file have two relative path of both csv files in the **amazon_product_scraping/data/InputData** folder.
 ## utils
-The `amazon_product_scraping/utils` folder have two python files `AmazonScrapingHelper.py` and `FileHelper.py`. The python file `AmazonScrapingHelper.py` has a class with different functions. The logic for extracting the product data from `amazon.in` have written in these different functions, for example: product title, product brand, product sale price etc. The python file `FileHelper.py` has a class with a function. This function read a csv file which has a column `URL` with URLs of amazon product and return a list of these URLs.
+The **amazon_product_scraping/utils** folder have two python files `AmazonScrapingHelper.py` and `FileHelper.py`. The python file `AmazonScrapingHelper.py` has a class with different functions. The logic for extracting the product data from **amazon.in** have written in these different functions, for example: product title, product brand, product sale price etc. The python file `FileHelper.py` has a class with a function. This function read a csv file which has a column **URL** with URLs of amazon product and return a list of these URLs.
 ## spiders
-The `amazon_product_scraping/spiders` folder have two spiders `AmazonProductSpider.py` and `AmazonProductSalePriceBSRSpider.py`. The spider `AmazonProductSpider.py` extract all data of amazon product like product title, product brand, product sale price etc. and the spider `AmazonProductSalePriceBSRSpider.py` extract only product sale price, product best seller rank, product asin with using of the class of python file `amazon_product_scraping/utils/AmazonScrapingHelper.py`. 
+The **amazon_product_scraping/spiders** folder have two spiders `AmazonProductSpider.py` and `AmazonProductSalePriceBSRSpider.py`. The spider `AmazonProductSpider.py` extract all data of amazon product like product title, product brand, product sale price etc. and the spider `AmazonProductSalePriceBSRSpider.py` extract only product sale price, product best seller rank, product asin with using of the class of python file `amazon_product_scraping/utils/AmazonScrapingHelper.py`. 
 ## pipelines.py
-The python file `amazon_product_scraping/pipelines.py` has a class `MongoDBPipeline` with MongoDB collection name `product_data` and different functions. The class `MongoDBPipeline` has implemented for saving the product data of amazon in the MongoDB.
+The python file `amazon_product_scraping/pipelines.py` has a class **MongoDBPipeline** with MongoDB collection name **product_data** and different functions. The class **MongoDBPipeline** has implemented for saving the product data of amazon in the MongoDB.
 ## Run a Spider in the terminal
-Before running the spider we need to add the following lines in the python file `amazon_product_scraping/settings.py`.
+Before running a spider we need to add the following lines in the python file `amazon_product_scraping/settings.py`.
 ```
 ITEM_PIPELINES = {"amazon_product_scraping.pipelines.MongoDBPipeline": 300,}
 MONGO_URI = "mongodb://localhost:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
 ```
-Where `mongodb://localhost:27017` is the uri of MongoDB and `amazon_product_data_scraping` is the database name of MongoDB.
+Where **mongodb://localhost:27017** is the uri of MongoDB and **amazon_product_data_scraping** is the database name of MongoDB.
 
 Go to the project's directory and run the following command:
 > `scrapy crawl amazon_product_data`
@@ -67,7 +67,7 @@ Go to the project's directory and run the following command:
 This command runs the spider with name **amazon_product_data**.
 ## Rotate User Agent
 ### Installation
-To install `scrapy-fake-useragent` library using the following command:
+To install **scrapy-fake-useragent** library using the following command:
 > `pip install scrapy-fake-useragent`
 
 This library have 2200 user agents and pick random user agent for each request.
@@ -94,7 +94,7 @@ rotate_user_agent = True
 We also need to update the python file `amazon_product_scraping/middleware.py`.
 ## Spidermon
 ### Installation
-To install `spidermon` using the following command:
+To install **spidermon** using the following command:
 > `pip install spidermon`
 ### Enable Spidermon
 To enable Spidermon in the project, include the following lines in the python file `amazon_product_scraping/settings.py`.
@@ -109,7 +109,7 @@ EXTENSIONS = {
 ### Monitor
 Monitor is similar to test cases with a set of methods that is executed at well defined moments of the spider execution containing your monitoring logic.<br/>
 Create a new python file called `amazon_product_scraping/monitors.py` that will contain the definition and configuration of your monitors.<br/>
-This suite needs to be executed when the spider closes, so we include it in the SPIDERMON_SPIDER_CLOSE_MONITORS list in the python file `amazon_product_scraping/settings.py`.
+This suite needs to be executed when the spider closes, so we include it in the **SPIDERMON_SPIDER_CLOSE_MONITORS** list in the python file `amazon_product_scraping/settings.py`.
 ```
 SPIDERMON_SPIDER_CLOSE_MONITORS = (
     "spidermon.contrib.scrapy.monitors.SpiderCloseMonitorSuite",
@@ -117,18 +117,18 @@ SPIDERMON_SPIDER_CLOSE_MONITORS = (
 ```
 ## Scrapyd
 ### Installation
-To install `scrapyd` using the following command:
+To install **scrapyd** using the following command:
 > `pip install scrapyd`
 
-after installing to start `scrapyd` using the following command:
+after installing to start **scrapyd** using the following command:
 > `scrapyd`
 ### Deploying a project
 #### Scrapyd-client
-Open an another terminal and install `scrapyd-client` using the following command:
+Open an another terminal and install **scrapyd-client** using the following command:
 > `pip install git+https://github.com/scrapy/scrapyd-client.git`
 #### Deploy
 To deploy the project using the following command:
-> scrapyd-deploy default
+> `scrapyd-deploy default`
 #### List of Spiders
 To get list of spiders using the following command:
 > `curl http://localhost:6800/listspiders.json?project=amazon_product_scraping`
