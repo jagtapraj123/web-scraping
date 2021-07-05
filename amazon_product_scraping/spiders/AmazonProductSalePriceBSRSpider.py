@@ -20,18 +20,18 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         items = AmazonProductScrapingItem()
         helper = AmazonScrapingHelper()
 
-        title = helper.get_title(response)
+        # title = helper.get_title(response)
         sale_price = helper.get_sale_price(response)
-        original_price = helper.get_original_price(response)
+        # original_price = helper.get_original_price(response)
         best_seller_rank = helper.get_best_seller_rank(response)
         asin = helper.get_asin(response)
-        subscription_discount = helper.get_subscription_discount(response)
+        # subscription_discount = helper.get_subscription_discount(response)
 
-        items["product_name"] = title
+        # items["product_name"] = title
         items["product_sale_price"] = sale_price
-        items["product_original_price"] = original_price
+        # items["product_original_price"] = original_price
         items["product_best_seller_rank"] = best_seller_rank
         items["product_asin"] = asin
-        items["product_subscription_discount"] = subscription_discount
+        # items["product_subscription_discount"] = subscription_discount
 
         yield items

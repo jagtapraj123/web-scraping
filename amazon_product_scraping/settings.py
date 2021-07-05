@@ -19,8 +19,6 @@ ITEM_PIPELINES = {
     "amazon_product_scraping.pipelines.MongoDBPipeline": 300,
 }
 
-MONGODB_SERVER = "localhost"
-MONGODB_PORT = 27017
 MONGO_URI = "mongodb://localhost:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
 
