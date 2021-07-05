@@ -52,3 +52,19 @@ Go to the project's directory and run the following command:
 > scrapy crawl AmazonProductSpider
 
 This command runs the spider with name **AmazonProductSpider**.
+# Installation of Scrapyd
+To install `scrapyd` using the following command:
+> pip install scrapyd
+# Deploying a project
+## Scrapyd-client
+Scrapyd-client is a client for Scrapyd. It provides the general `scrapyd-client` and the `scrapyd-deploy` utility which allows you to deploy your project to a Scrapyd server. To install `scrapyd-client` using the following command:
+> pip install git+https://github.com/scrapy/scrapyd-client.git
+## Deploy
+To deploy the project using the following command:
+> scrapyd-deploy default
+## List of Spiders
+To get list of spiders using the following command:
+> curl http://localhost:6800/listspiders.json?project=<projectname>
+## Run a Spider
+To run a spider using the following command:
+> curl http://localhost:6800/schedule.json -d project=<projectname> -d spider=<spidername>
