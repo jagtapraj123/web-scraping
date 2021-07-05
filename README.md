@@ -50,8 +50,10 @@ The `amazon_product_scraping/configuration_file` folder has a file `config.json`
 The `amazon_product_scraping/utils` folder have two python files `AmazonScrapingHelper.py` and `FileHelper.py`. The python file `AmazonScrapingHelper.py` has a class with different functions. The logic for extracting the product data from `amazon.in` have written in these different functions, for example: product title, product brand, product sale price etc. The python file `FileHelper.py` has a class with a function. This function read a csv file which has a column `URL` with URLs of amazon product and return a list of these URLs.
 ## spiders
 The `amazon_product_scraping/spiders` folder have two spiders `AmazonProductSpider.py` and `AmazonProductSalePriceBSRSpider.py`. The spider `AmazonProductSpider.py` extract all data of amazon product like product title, product brand, product sale price etc. and the spider `AmazonProductSalePriceBSRSpider.py` extract only product sale price, product best seller rank, product asin with using of the class of python file `amazon_product_scraping/utils/AmazonScrapingHelper.py`. 
+## pipelines.py
+The python file `amazon_product_scraping/pipelines.py` has a class `MongoDBPipeline` with MongoDB collection name `product_data` and different functions. The class `MongoDBPipeline` has implemented for saving the product data of amazon in the MongoDB.
 ## Run a Spider in the terminal
-Before running the spider we need to add **ITEM_PIPELINES = {"amazon_product_scraping.pipelines.AmazonProductScrapingPipeline": 300,}** in the python file `settings.py`.
+Before running the spider we need to add **ITEM_PIPELINES = {"amazon_product_scraping.pipelines.MongoDBPipeline": 300,}** in the python file `settings.py`.
 
 Go to the project's directory and run the following command:
 > `scrapy crawl amazon_product_data`
