@@ -6,7 +6,7 @@ The `requirements.txt` file has list of all Python libraries which are required 
 Enter a directory where you’d like to store your code and run:
 > `scrapy startproject amazon_product_scraping`
 
-Where **amazon_product_scraping** is the scrapy project name. This will create a directory with the name of amazon_product_scraping in the same directory with the following contents:
+Where **amazon_product_scraping** is the scrapy project name. This will create a directory with the name of **amazon_product_scraping** in the same directory with the following contents:
 ```
 amazon_product_scraping/
     scrapy.cfg
