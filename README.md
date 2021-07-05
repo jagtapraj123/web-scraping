@@ -107,30 +107,31 @@ EXTENSIONS = {
 }
 ```
 ### Monitor
-Monitors are similar to test cases with a set of methods that are executed at well defined moments of the spider execution containing your monitoring logic.
-Create a new file called `monitors.py` that will contain the definition and configuration of your monitors in the folder `amazon_product_scraping`.
+Monitor is similar to test cases with a set of methods that is executed at well defined moments of the spider execution containing your monitoring logic.<br/>
+Create a new python file called `amazon_product_scraping/monitors.py` that will contain the definition and configuration of your monitors.<br/>
 This suite needs to be executed when the spider closes, so we include it in the SPIDERMON_SPIDER_CLOSE_MONITORS list in the python file `amazon_product_scraping/settings.py`.
 ```
 SPIDERMON_SPIDER_CLOSE_MONITORS = (
     "spidermon.contrib.scrapy.monitors.SpiderCloseMonitorSuite",
 )
 ```
-## Installation of Scrapyd
+## Scrapyd
+### Installation
 To install `scrapyd` using the following command:
 > `pip install scrapyd`
 
 after installing to start `scrapyd` using the following command:
 > `scrapyd`
-## Deploying a project
-### Scrapyd-client
+### Deploying a project
+#### Scrapyd-client
 Open an another terminal and install `scrapyd-client` using the following command:
 > `pip install git+https://github.com/scrapy/scrapyd-client.git`
-### Deploy
+#### Deploy
 To deploy the project using the following command:
 > scrapyd-deploy default
-### List of Spiders
+#### List of Spiders
 To get list of spiders using the following command:
 > `curl http://localhost:6800/listspiders.json?project=amazon_product_scraping`
-### Run a Spider in the Scrapyd
+#### Run a Spider in the Scrapyd
 To run a spider using the following command:
 > `curl http://localhost:6800/schedule.json -d project=amazon_product_scraping -d spider=amazon_product_data`
