@@ -45,7 +45,7 @@ In the created **AmazonProductSpider**, we need to define its name and **allowed
 ## data
 The `amazon_product_scraping/data` folder have two folders `InputData` and `OutputData`. The folder `InputData` have two csv files `amazon_product_data.csv` and `recurrent_saleprice_bsr.csv`. The csv file `amazon_product_data.csv` has a column **URL** with new URLs of amazon product and the csv file `recurrent_saleprice_bsr.csv` has a column **URL** with old URLs of amazon product. The folder `OutputData` has a json file which have product data of amazon.
 ## configuration_file
-The `amazon_product_scraping/configuration_file` folder has a file `config.json`. This file have two relative path of both csv files in the `amazon_product_scraping/data/InputData` folder.
+The `amazon_product_scraping/configuration_file` folder has a file `config.json`. This file have four relative path of both csv files and two failed urls csv files in the `amazon_product_scraping/data/InputData` folder.
 ## utils
 The `amazon_product_scraping/utils` folder have two python files `AmazonScrapingHelper.py` and `FileHelper.py`. The python file `AmazonScrapingHelper.py` has a class with different functions. The logic for extracting the product data from **amazon.in** have written in these different functions, for example: product title, product brand, product sale price etc. The python file `FileHelper.py` has a class with a function. This function read a csv file which has a column **URL** with URLs of amazon product and return a list of these URLs.
 ## spiders
