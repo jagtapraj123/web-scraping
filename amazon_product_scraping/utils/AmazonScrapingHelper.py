@@ -1,17 +1,47 @@
 from datetime import datetime
-import scrapy
 import re
 
 
 class AmazonScrapingHelper:
+    """
+    A class used to return attributes of an amazon product using xpath.
+    """
+
     def get_title(self, response):
-        title_xpath_text = response.xpath(
-            '//h1[@id="title"]//span/text()'
-        ).extract_first()
-        title = "".join(title_xpath_text).strip()
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            title of the amazon product
+        """
+
+        title_xpath_text = (
+            response.xpath(
+                '//h1[@id="title"]//span[@id="productTitle"]/text()'
+            ).extract_first()
+            or "NA"
+        )
+        title = title_xpath_text.strip()
         return title
 
     def get_brand(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            brand of the amazon product
+        """
+
         brand = (
             response.xpath(
                 '//td[@class="a-span9"]//span[@class="a-size-base"]/text()'
@@ -21,6 +51,18 @@ class AmazonScrapingHelper:
         return brand
 
     def get_sale_price(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            object with current time and sale price of the amazon product
+        """
+
         sale_price_xpath_text = (
             response.xpath(
                 '//span[contains(@id,"priceblock_dealprice") or contains(@id,"priceblock_ourprice")]/text()'
@@ -42,6 +84,18 @@ class AmazonScrapingHelper:
         return sale_price
 
     def get_offers(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            offer count of the amazon product
+        """
+
         offers_xpath_text = response.xpath(
             '//span[@class="saving-prompt"]/text()'
         ).extract()
@@ -53,6 +107,18 @@ class AmazonScrapingHelper:
             return "NA"
 
     def get_original_price(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            original price of the amazon product
+        """
+
         original_price_xpath_text = (
             response.xpath(
                 '//span[@class="priceBlockStrikePriceString a-text-strike"]/text()'
@@ -67,6 +133,18 @@ class AmazonScrapingHelper:
         return original_price
 
     def get_fullfilled(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            fulfilled of the amazon product
+        """
+
         if response.xpath('//span[@class="a-icon-text-fba"]/text()').extract_first():
             fullfilled = response.xpath(
                 '//span[@class="a-icon-text-fba"]/text()'
@@ -86,10 +164,34 @@ class AmazonScrapingHelper:
             return "NA"
 
     def get_rating(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            rating of the amazon product
+        """
+
         rating = response.xpath('//*[@id="acrPopover"]/@title').extract_first() or "NA"
         return rating
 
     def get_total_reviews(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            total reviews of the amazon product
+        """
+
         total_reviews = (
             response.xpath('//*[@id="acrCustomerReviewText"]/text()').extract_first()
             or "NA"
@@ -97,6 +199,18 @@ class AmazonScrapingHelper:
         return total_reviews
 
     def get_availability(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            availability of the amazon product
+        """
+
         availability_xpath_text = (
             response.xpath('//div[@id="availability"]//text()').extract() or "NA"
         )
@@ -106,6 +220,18 @@ class AmazonScrapingHelper:
         return availability
 
     def get_category(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            category of the amazon product
+        """
+
         category_xpath_text = response.xpath(
             '//a[@class="a-link-normal a-color-tertiary"]/text()'
         ).extract()
@@ -113,6 +239,18 @@ class AmazonScrapingHelper:
         return category
 
     def get_icons(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            icons of the amazon product
+        """
+
         icons_xpath_text = response.xpath(
             '//a[@class="a-size-small a-link-normal a-text-normal"]/text()'
         ).extract()
@@ -122,6 +260,18 @@ class AmazonScrapingHelper:
         return icons
 
     def get_best_seller_rank(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            object with current time and best seller rank of the amazon product
+        """
+
         product_details_xpath_text = response.xpath(
             '//div[@id="detailBullets_feature_div"]//span/text()'
         ).getall()
@@ -187,6 +337,18 @@ class AmazonScrapingHelper:
             return best_seller_rank
 
     def get_product_details(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        object
+            product details of the amazon product
+        """
+
         product_details_xpath_text = response.xpath(
             '//div[@id="detailBullets_feature_div"]//span/text()'
         ).getall()
@@ -226,10 +388,37 @@ class AmazonScrapingHelper:
         return {}
 
     def get_asin(self, response):
-        asin = response.xpath("//*[@data-asin]").xpath("@data-asin").extract_first()
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            asin of the amazon product
+        """
+
+        asin = (
+            response.xpath("//*[@data-asin]").xpath("@data-asin").extract_first()
+            or "NA"
+        )
         return asin
 
     def get_important_information(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            important information of the amazon product
+        """
+
         important_information_xpath_text = (
             response.xpath(
                 '//div[@id="important-information"]//div[@class="a-section content"]//p/text()'
@@ -240,6 +429,18 @@ class AmazonScrapingHelper:
         return important_information
 
     def get_product_description(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            product description of the amazon product
+        """
+
         product_description_xpath_text = (
             response.xpath('//div[@id="productDescription"]//p/text()').extract()
             or "NA"
@@ -248,6 +449,18 @@ class AmazonScrapingHelper:
         return product_description
 
     def get_bought_together(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            bought together of the amazon product
+        """
+
         bought_together_xpath_text = response.xpath(
             '//div[@aria-hidden="true"]/text()'
         ).extract()
@@ -258,6 +471,18 @@ class AmazonScrapingHelper:
         return bought_together
 
     def get_subscription_discount(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        str
+            subscription discount of the amazon product
+        """
+
         subscription_discount_xpath_text = response.xpath(
             '//tr[contains(@id,"regularprice_savings") or contains(@id,"dealprice_savings")]//td[@class="a-span12 a-color-price a-size-base priceBlockSavingsString"]/text()'
         ).extract_first()
@@ -270,6 +495,18 @@ class AmazonScrapingHelper:
         return "NA"
 
     def get_variations(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            variations of the amazon product
+        """
+
         variations = (
             response.xpath(
                 '//div[@id="variation_pattern_name"]//img[@class="imgSwatch"]'

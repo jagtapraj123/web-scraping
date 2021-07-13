@@ -7,8 +7,10 @@ import scrapy
 
 
 class AmazonProductScrapingItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+    """
+    A class used to define the fields for the item.
+    """
+
     product_name = scrapy.Field()
     product_brand = scrapy.Field()
     product_sale_price = scrapy.Field()
