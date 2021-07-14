@@ -16,8 +16,8 @@ ITEM_PIPELINES = {
     "amazon_product_scraping.pipelines.MongoDBPipeline": 300,
 }
 
-MONGO_URI = "mongodb://localhost:27017"
-# MONGO_URI = " mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb"
+# MONGO_URI = "mongodb://localhost:27017"
+MONGO_URI = "mongodb://127.0.0.1:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
 
 # Obey robots.txt rules
