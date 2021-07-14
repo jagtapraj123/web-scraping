@@ -21,7 +21,7 @@ MONGO_URI = "mongodb://127.0.0.1:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
