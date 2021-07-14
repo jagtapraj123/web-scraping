@@ -131,13 +131,13 @@ class AmazonProductSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
-        try:
-            fullfilled = helper.get_fullfilled(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            fullfilled = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+        # try:
+        #     fullfilled = helper.get_fullfilled(response)
+        # except Exception:
+        #     logging.error("Exception occurred", exc_info=True)
+        #     fullfilled = "NA"
+        #     if response.url not in self.failed_urls:
+        #         self.failed_urls.append(response.url)
 
         try:
             rating = helper.get_rating(response)
@@ -255,7 +255,7 @@ class AmazonProductSpider(scrapy.Spider):
         items["product_sale_price"] = sale_price
         items["product_offers"] = offers
         items["product_original_price"] = original_price
-        items["product_fullfilled"] = fullfilled
+        # items["product_fullfilled"] = fullfilled
         items["product_rating"] = rating
         items["product_total_reviews"] = total_reviews
         items["product_availability"] = availability
