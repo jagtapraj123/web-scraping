@@ -7,9 +7,9 @@ import logging
 import pandas as pd
 from scrapy import signals
 
-# logger = logging.getLogger("scraper")
-# FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
-# logging.basicConfig(format=FORMAT)
+logger = logging.getLogger("scraper")
+FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
+logging.basicConfig(format=FORMAT)
 
 
 class AmazonProductSpider(scrapy.Spider):
@@ -37,7 +37,7 @@ class AmazonProductSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])[
-        :1
+        :10
     ]
 
     def __init__(self, *args, **kwargs):
