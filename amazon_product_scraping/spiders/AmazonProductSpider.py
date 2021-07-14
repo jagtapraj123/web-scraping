@@ -7,9 +7,9 @@ import logging
 import pandas as pd
 from scrapy import signals
 
-logger = logging.getLogger("scraper")
-FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
-logging.basicConfig(format=FORMAT)
+# logger = logging.getLogger("scraper")
+# FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
+# logging.basicConfig(format=FORMAT)
 
 
 class AmazonProductSpider(scrapy.Spider):
