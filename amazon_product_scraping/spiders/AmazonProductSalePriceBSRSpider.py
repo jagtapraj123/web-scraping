@@ -88,6 +88,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         dicts
             extract the scraped data as dicts
         """
+        
         filename = response.url.split("/")[-1] + '.html'
         with open(filename, 'wb') as f:
             f.write(response.body)
