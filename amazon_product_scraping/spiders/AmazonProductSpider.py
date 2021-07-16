@@ -32,7 +32,7 @@ class AmazonProductSpider(scrapy.Spider):
 
     handle_httpstatus_all = True
     name = "AmazonProductSpider"
-    # rotate_user_agent = True
+    rotate_user_agent = True
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
