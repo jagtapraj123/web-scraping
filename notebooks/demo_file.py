@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 client = MongoClient()
-db = client["amazon_product_data"]
+DB = client["amazon_product_data"]
 collection = db["product_data"]
 url = "http://www.amazon.in"
 HEADERS = ({'User-Agent':
