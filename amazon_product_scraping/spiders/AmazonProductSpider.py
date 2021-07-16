@@ -37,7 +37,7 @@ class AmazonProductSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])[
-        :3
+        :10
     ]
 
     def __init__(self, *args, **kwargs):
@@ -201,6 +201,8 @@ class AmazonProductSpider(scrapy.Spider):
 
         try:
             asin = helper.get_asin(response)
+            if asin == "NA" and response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             asin = "NA"
