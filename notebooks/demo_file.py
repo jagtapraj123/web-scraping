@@ -13,5 +13,5 @@ soup = BeautifulSoup(webpage.content, "html.parser")
 
 for element in soup.find_all(['a','link']):
     link = element.get('href')
-    collection.insert_one({'link':link})
+    db.collection.insertOne({'link':link})
     print(link)
