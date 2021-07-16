@@ -19,7 +19,8 @@ ITEM_PIPELINES = {
 MONGO_URI = "mongodb://localhost:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
 
-SPLASH_URL = 'http://192.168.59.103:8050/'
+# SPLASH_URL = 'http://192.168.59.103:8050/'
+SPLASH_URL = 'http://localhost:8050/'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
