@@ -16,9 +16,10 @@ ITEM_PIPELINES = {
     "amazon_product_scraping.pipelines.MongoDBPipeline": 300,
 }
 
-# MONGO_URI = "mongodb://localhost:27017"
-MONGO_URI = "mongodb://127.0.0.1:27017"
+MONGO_URI = "mongodb://localhost:27017"
 MONGO_DATABASE = "amazon_product_data_scraping"
+
+SPLASH_URL = 'http://192.168.59.103:8050/'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
