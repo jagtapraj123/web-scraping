@@ -37,7 +37,7 @@ class AmazonProductSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])[
-        :5
+        :10
     ]
 
     def start_requests(self):
