@@ -37,7 +37,7 @@ class AmazonProductSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])[
-        :2
+        :5
     ]
 
     def start_requests(self):
@@ -143,13 +143,13 @@ class AmazonProductSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
-        # try:
-        #     fullfilled = helper.get_fullfilled(response)
-        # except Exception:
-        #     logging.error("Exception occurred", exc_info=True)
-        #     fullfilled = "NA"
-        #     if response.url not in self.failed_urls:
-        #         self.failed_urls.append(response.url)
+        try:
+            fullfilled = helper.get_fullfilled(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            fullfilled = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
 
         try:
             rating = helper.get_rating(response)
