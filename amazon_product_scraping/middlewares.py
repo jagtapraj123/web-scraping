@@ -83,6 +83,3 @@ class RotateUserAgentMiddleware(object):
 
         request.headers["user-agent"] = choice(self.user_agents)
 
-# class ScraperAPIMiddleware(object):
-#     def process_request(self, request, spider):
-#         request.meta['proxy'] = 'http://scraperapi:versha@proxy-server.scraperapi.com:8001'

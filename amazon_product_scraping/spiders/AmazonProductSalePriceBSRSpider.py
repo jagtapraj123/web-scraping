@@ -6,15 +6,10 @@ from amazon_product_scraping.utils.FileHelper import FileHelper
 import logging
 import pandas as pd
 from scrapy import signals
-from urllib.parse import urlencode
 
 logger = logging.getLogger("scraper")
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
 logging.basicConfig(format=FORMAT)
-
-from scraper_api import ScraperAPIClient
-client = ScraperAPIClient('versha')
-
 
 class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     """
@@ -45,7 +40,6 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
 
     def start_requests(self):
         urls = self.start_urls
-
 
         for url in urls:
             yield scrapy.Request(url=url, 

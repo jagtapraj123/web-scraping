@@ -37,8 +37,16 @@ class AmazonProductSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])[
-        :2
+        :5
     ]
+
+    def start_requests(self):
+        urls = self.start_urls
+
+        for url in urls:
+            yield scrapy.Request(url=url, 
+            callback=self.parse, 
+            meta={'proxy': 'http://scraperapi:0320fadd257a2465c823ef9dca39de81@proxy-server.scraperapi.com:8001'})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
