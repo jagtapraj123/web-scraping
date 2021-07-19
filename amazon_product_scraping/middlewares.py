@@ -82,4 +82,3 @@ class RotateUserAgentMiddleware(object):
             return
 
         request.headers["user-agent"] = choice(self.user_agents)
-

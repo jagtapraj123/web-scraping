@@ -41,12 +41,22 @@ class AmazonProductSpider(scrapy.Spider):
     ]
 
     def start_requests(self):
+        """
+        This class method must return an iterable with the first Requests to crawl for this spider.
+
+        Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
+        """
+
         urls = self.start_urls
 
         for url in urls:
-            yield scrapy.Request(url=url, 
-            callback=self.parse, 
-            meta={'proxy': 'http://scraperapi:0320fadd257a2465c823ef9dca39de81@proxy-server.scraperapi.com:8001'})
+            yield scrapy.Request(
+                url=url,
+                callback=self.parse,
+                meta={
+                    "proxy": "http://scraperapi:0320fadd257a2465c823ef9dca39de81@proxy-server.scraperapi.com:8001"
+                },
+            )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -96,10 +106,10 @@ class AmazonProductSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        filename = response.url.split("/")[-1] + '.html'
-        with open(filename, 'wb') as f:
+        filename = response.url.split("/")[-1] + ".html"
+        with open(filename, "wb") as f:
             f.write(response.body)
-            
+
         helper = AmazonScrapingHelper()
         items = AmazonProductScrapingItem()
 
