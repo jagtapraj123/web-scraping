@@ -17,7 +17,7 @@ ITEM_PIPELINES = {
 }
 
 MONGO_URI = "mongodb://localhost:27017"
-MONGO_DATABASE = "amazon_product_data_scraping"
+MONGO_DATABASE = "amazon_product_data"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
