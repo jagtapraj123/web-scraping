@@ -35,7 +35,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])[
-        :5
+        :2
     ]
 
     def start_requests(self):
