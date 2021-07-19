@@ -23,7 +23,8 @@ MONGO_DATABASE = "amazon_product_data_scraping"
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-# CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 5 # 32
+RETRY_TIMES = 3
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -63,7 +64,12 @@ DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
     "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
     "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
+    "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 400,
 }
+# DOWNLOADER_MIDDLEWARES = {
+#     'amazon_product_scraping.middlewares.ScraperAPIMiddleware': 350,
+#     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 400,
+# }
 
 FAKEUSERAGENT_PROVIDERS = [
     "scrapy_fake_useragent.providers.FakeUserAgentProvider",  # this is the first provider we'll try
