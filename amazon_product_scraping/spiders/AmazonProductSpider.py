@@ -36,7 +36,8 @@ class AmazonProductSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])
+    start_urls = FileHelper.get_urls(input_data["product_data"]["other_urls_data_path"])[:10]
+    # start_urls = ["http://amazon.in/dp/B07V5C8X4B"]
 
     def start_requests(self):
         """
@@ -52,7 +53,7 @@ class AmazonProductSpider(scrapy.Spider):
                 url=url,
                 callback=self.parse,
                 meta={
-                    "proxy": "http://scraperapi:0320fadd257a2465c823ef9dca39de81@proxy-server.scraperapi.com:8001"
+                    "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
                 },
             )
 
@@ -104,9 +105,9 @@ class AmazonProductSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        filename = response.url.split("/")[-1] + ".html"
-        with open(filename, "wb") as f:
-            f.write(response.body)
+        # filename = response.url.split("/")[-1] + ".html"
+        # with open(filename, "wb") as f:
+        #     f.write(response.body)
 
         helper = AmazonScrapingHelper()
         items = AmazonProductScrapingItem()
@@ -209,6 +210,8 @@ class AmazonProductSpider(scrapy.Spider):
 
         try:
             product_details = helper.get_product_details(response)
+            if product_details == {} and response.url not in self.failed_urls:
+            	self.failed_urls.append(response.url)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             product_details = "NA"
@@ -277,7 +280,7 @@ class AmazonProductSpider(scrapy.Spider):
         items["product_sale_price"] = sale_price
         items["product_offers"] = offers
         items["product_original_price"] = original_price
-        # items["product_fullfilled"] = fullfilled
+        items["product_fullfilled"] = fullfilled
         items["product_rating"] = rating
         items["product_total_reviews"] = total_reviews
         items["product_availability"] = availability

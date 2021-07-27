@@ -24,7 +24,7 @@ class MongoDBPipeline:
         MongoDB database name
     """
 
-    collection_name = "product_data"
+    collection_name = "test"
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri

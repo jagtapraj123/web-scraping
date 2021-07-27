@@ -36,7 +36,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])[
-        :2
+        :10
     ]
 
     def start_requests(self):
@@ -53,7 +53,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
                 url=url,
                 callback=self.parse,
                 meta={
-                    "proxy": "http://scraperapi:0320fadd257a2465c823ef9dca39de81@proxy-server.scraperapi.com:8001"
+                    "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
                 },
             )
 
@@ -107,9 +107,9 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        filename = response.url.split("/")[-1] + ".html"
-        with open(filename, "wb") as f:
-            f.write(response.body)
+        # filename = response.url.split("/")[-1] + ".html"
+        # with open(filename, "wb") as f:
+        #     f.write(response.body)
 
         items = AmazonProductScrapingItem()
         helper = AmazonScrapingHelper()

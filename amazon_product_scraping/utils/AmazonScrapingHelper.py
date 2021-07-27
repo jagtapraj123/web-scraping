@@ -42,13 +42,19 @@ class AmazonScrapingHelper:
             brand of the amazon product
         """
 
-        brand = (
-            response.xpath(
-                '//td[@class="a-span9"]//span[@class="a-size-base"]/text()'
-            ).extract_first()
-            or "NA"
-        )
-        return brand
+        # brand = (
+        #     response.xpath(
+        #         '//td[@class="a-span9"]//span[@class="a-size-base"]/text()'
+        #     ).extract()
+        #     or "NA"
+        # )
+        brand_xpath_text = (response.xpath('//table[@class="a-normal a-spacing-micro"]//span/text()')).extract()
+        if brand_xpath_text:
+            brand_index = brand_xpath_text.index("Brand")
+            brand = brand_xpath_text[brand_index+1]
+            return brand
+        else:
+            return "NA"
 
     def get_sale_price(self, response):
         """
@@ -155,11 +161,11 @@ class AmazonScrapingHelper:
             in response.xpath('//div[@id="merchant-info"]//a/text()').extract()
         ):
             return "Fulfilled"
-        elif (
-            "fulfilled"
-            in response.xpath('//div[@id="merchant-info"]/text()').extract_first()
-        ):
-            return "Fulfilled"
+        # elif (
+        #     "fulfilled"
+        #     in response.xpath('//div[@id="merchant-info"]/text()').extract_first()
+        # ):
+        #     return "Fulfilled"
         else:
             return "NA"
 
@@ -385,6 +391,7 @@ class AmazonScrapingHelper:
                     [self.get_rating(response), self.get_total_reviews(response)]
                 )
             return details
+
         return {}
 
     def get_asin(self, response):
