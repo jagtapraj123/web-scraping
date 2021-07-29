@@ -35,9 +35,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])[
-        :10
-    ]
+    start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
 
     def start_requests(self):
         """
@@ -148,6 +146,16 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
+        try:
+            product_details = helper.get_product_details(response)
+            if product_details == {} and response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            product_details = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+
         dict = {"URL": self.failed_urls}
         df = pd.DataFrame(dict)
         df.to_csv(
@@ -159,6 +167,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         items["product_sale_price"] = sale_price
         items["product_best_seller_rank"] = best_seller_rank
         items["product_asin"] = asin
+        items["product_details"] = product_details
         yield items
 
     def handle_spider_closed(self, reason):

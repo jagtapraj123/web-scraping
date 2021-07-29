@@ -59,27 +59,12 @@ DOWNLOAD_DELAY = 5  # 3
 # DOWNLOADER_MIDDLEWARES = {
 #    'amazon_product_scraping.middlewares.AmazonProductScrapingDownloaderMiddleware': 543,
 # }
-# DOWNLOADER_MIDDLEWARES = { 
-#     'scrapy_splash.SplashCookiesMiddleware': 723, 
-#     'scrapy_splash.SplashMiddleware': 725, 
-#     'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810, 
-# }
-# SPLASH_URL = 'http://192.168.59.103:8050/'
-SPLASH_URL = 'http://0.0.0.0:8050'
-SPIDER_MIDDLEWARES = { 
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100, 
-}
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter' 
-# HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+
 DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
     "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
     "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
     "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
-    'scrapy_splash.SplashCookiesMiddleware': 723, 
-    'scrapy_splash.SplashMiddleware': 725, 
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810, 
-    # "scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware": 400,
 }
 
 

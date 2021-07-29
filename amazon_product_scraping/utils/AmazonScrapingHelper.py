@@ -48,10 +48,12 @@ class AmazonScrapingHelper:
         #     ).extract()
         #     or "NA"
         # )
-        brand_xpath_text = (response.xpath('//table[@class="a-normal a-spacing-micro"]//span/text()')).extract()
+        brand_xpath_text = (
+            response.xpath('//table[@class="a-normal a-spacing-micro"]//span/text()')
+        ).extract()
         if brand_xpath_text:
             brand_index = brand_xpath_text.index("Brand")
-            brand = brand_xpath_text[brand_index+1]
+            brand = brand_xpath_text[brand_index + 1]
             return brand
         else:
             return "NA"

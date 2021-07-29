@@ -82,20 +82,27 @@ class MongoDBPipeline:
             existing_item = self.db[self.collection_name].find_one(
                 {"product_asin": item["product_asin"]}
             )
-            if not existing_item and item["product_asin"] != "NA":
+            if (
+                not existing_item
+                and item["product_details"] != {}
+                and item["product_asin"] != "NA"
+            ):
                 self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
                 return item
             return item
 
         if spider.name == "AmazonProductSalePriceBSRSpider":
-            self.db[self.collection_name].find_one_and_update(
-                {"product_asin": item["product_asin"]},
-                {
-                    "$push": {
-                        "product_sale_price": item["product_sale_price"][0],
-                        "product_best_seller_rank": item["product_best_seller_rank"][0],
-                    }
-                },
-                upsert=True,
-            )
+            if item["product_details"] != {} and item["product_asin"] != "NA":
+                self.db[self.collection_name].find_one_and_update(
+                    {"product_asin": item["product_asin"]},
+                    {
+                        "$push": {
+                            "product_sale_price": item["product_sale_price"][0],
+                            "product_best_seller_rank": item[
+                                "product_best_seller_rank"
+                            ][0],
+                        }
+                    },
+                    upsert=True,
+                )
             return item

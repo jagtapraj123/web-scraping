@@ -6,9 +6,6 @@ from amazon_product_scraping.utils.FileHelper import FileHelper
 import logging
 import pandas as pd
 from scrapy import signals
-from scrapy_splash import SplashRequest 
-# from scraper_api import ScraperAPIClient
-# client = ScraperAPIClient('1ee5ce80f3bbdbad4407afda1384b61e')
 
 logger = logging.getLogger("scraper")
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
@@ -39,32 +36,25 @@ class AmazonProductSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["other_urls_data_path"])[:10]
-    start_urls = ["http://amazon.in/dp/B08T3325CD", "http://amazon.in/dp/B08CSHBPD5"]
+    start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])
 
-    def start_requests(self): 
-        for url in self.start_urls: 
-            yield SplashRequest(url, self.parse, 
-                args={'wait': 0.5}
-           ) 
-    # def start_requests(self):
-    #     """
-    #     This class method must return an iterable with the first Requests to crawl for this spider.
+    def start_requests(self):
+        """
+        This class method must return an iterable with the first Requests to crawl for this spider.
 
-    #     Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
-    #     """
+        Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
+        """
 
-    #     urls = self.start_urls
+        urls = self.start_urls
 
-    #     for url in urls:
-    #     	yield scrapy.Request(client.scrapyGet(url=url), callback=self.parse)
-    #         # yield scrapy.Request(
-            #     url=url,
-            #     callback=self.parse,
-            #     meta={
-            #         "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-            #     },
-            # )
+        for url in urls:
+            yield scrapy.Request(
+                url=url,
+                callback=self.parse,
+                meta={
+                    "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
+                },
+            )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,9 +104,9 @@ class AmazonProductSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        filename = response.url.split("/")[-1] + ".html"
-        with open(filename, "wb") as f:
-            f.write(response.body)
+        # filename = response.url.split("/")[-1] + ".html"
+        # with open(filename, "wb") as f:
+        #     f.write(response.body)
 
         helper = AmazonScrapingHelper()
         items = AmazonProductScrapingItem()
@@ -220,7 +210,7 @@ class AmazonProductSpider(scrapy.Spider):
         try:
             product_details = helper.get_product_details(response)
             if product_details == {} and response.url not in self.failed_urls:
-            	self.failed_urls.append(response.url)
+                self.failed_urls.append(response.url)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             product_details = "NA"
