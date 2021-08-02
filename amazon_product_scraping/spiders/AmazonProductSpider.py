@@ -36,8 +36,8 @@ class AmazonProductSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_failed_file_path"])
-    start_urls = ["https://www.amazon.in/dp/B00KIYF8VE"]
+    start_urls = FileHelper.get_urls(input_data["product_data"]["other_urls_data_path"])
+    # start_urls = ["https://www.amazon.in/dp/B00KIYF8VE"]
     
     def start_requests(self):
         """
