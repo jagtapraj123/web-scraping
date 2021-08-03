@@ -4,6 +4,7 @@
         "old_data_file_path":"amazon_product_scraping/data/InputData/recurrent_saleprice_bsr.csv",
         "new_data_failed_file_path":"amazon_product_scraping/data/InputData/amazon_product_data_failed_urls.csv",
         "old_data_failed_file_path":"amazon_product_scraping/data/InputData/recurrent_saleprice_bsr_failed_urls.csv",
-        "other_urls_data_path":"amazon_product_scraping/data/InputData/amazon_product_urls.csv"
+        "other_urls_data_path":"amazon_product_scraping/data/InputData/amazon_product_urls.csv",
+        "all_urls_path":"amazon_product_scraping/data/InputData/amazon_all_data_urls.csv"
     }
 }
