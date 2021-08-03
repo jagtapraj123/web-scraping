@@ -35,8 +35,8 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["all_urls_path"])
-    start_urls = ["http://amazon.in/dp/B08T3325CD"]
+    start_urls = FileHelper.get_urls(input_data["product_data"]["all_urls_path"])
+    # start_urls = ["http://amazon.in/dp/B08T3325CD"]
 
     def start_requests(self):
         """
