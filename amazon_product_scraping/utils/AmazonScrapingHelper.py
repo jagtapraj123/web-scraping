@@ -396,6 +396,28 @@ class AmazonScrapingHelper:
 
         return {}
 
+    def get_general_information(self, response):
+        general_information_xpath_left_side = response.xpath('//table[@id="productDetails_techSpec_section_1"]//tr//th/text()').getall()
+        general_information_strip_left_side = [i.strip().replace("\n", "") for i in general_information_xpath_left_side]
+        general_information_xpath_right_side = response.xpath('//table[@id="productDetails_techSpec_section_1"]//tr//td/text()').getall()
+        general_information_strip_right_side = [i.strip().replace("\n", "") for i in general_information_xpath_right_side]
+        general_information_right_side = [i.replace("\u200e", "") for i in general_information_strip_right_side]
+        general_information = {}
+        for i, j in zip(general_information_strip_left_side, general_information_right_side):
+            general_information[i] = j
+        return general_information
+
+    def get_additional_information(self, response):
+        additional_information_xpath_left_side = response.xpath('//table[@id="productDetails_detailBullets_sections1"]//tr//th/text()').getall()
+        additional_information_strip_left_side = [i.strip().replace("\n", "") for i in additional_information_xpath_left_side]
+        additional_information_xpath_right_side = response.xpath('//table[@id="productDetails_detailBullets_sections1"]//tr//td//span/text()').getall()
+        additional_information_strip_right_side = [i.strip().replace("\n", "") for i in additional_information_xpath_right_side]
+        additional_information_right_side = [i.replace("\u200e", "") for i in additional_information_strip_right_side]
+        additional_information = {}
+        for i, j in zip(additional_information_strip_left_side, additional_information_right_side):
+            additional_information[i] = j
+        return additional_information_xpath_right_side
+
     def get_asin(self, response):
         """
         Parameters

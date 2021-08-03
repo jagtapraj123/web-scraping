@@ -36,8 +36,8 @@ class AmazonProductSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_failed_file_path"])
-    # start_urls = ["https://www.amazon.in/dp/B00KIYF8VE"]
+    # start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_failed_file_path"])
+    start_urls = ["https://www.amazon.in/dp/B08HJC7GXS"]
     
     def start_requests(self):
         """
@@ -268,6 +268,22 @@ class AmazonProductSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
+        try:
+            general_information = helper.get_general_information(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            general_information = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+
+        try:
+            additional_information = helper.get_additional_information(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            additional_information = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)        
+
         dict = {"URL": self.failed_urls}
         df = pd.DataFrame(dict)
         df.to_csv(
@@ -294,6 +310,8 @@ class AmazonProductSpider(scrapy.Spider):
         items["product_bought_together"] = bought_together
         items["product_subscription_discount"] = subscription_discount
         items["product_variations"] = variations
+        items["product_general_information"] = general_information
+        items["product_additional_information"] = additional_information
         yield items
 
     def handle_spider_closed(self, reason):

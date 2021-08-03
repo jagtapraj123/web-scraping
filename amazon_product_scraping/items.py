@@ -30,3 +30,5 @@ class AmazonProductScrapingItem(scrapy.Item):
     product_bought_together = scrapy.Field()
     product_subscription_discount = scrapy.Field()
     product_variations = scrapy.Field()
+    product_general_information = scrapy.Field()
+    product_additional_information = scrapy.Field()
