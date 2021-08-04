@@ -92,15 +92,15 @@ class MongoDBPipeline:
             return item
 
         if spider.name == "AmazonProductSalePriceBSRSpider":
-            if item["product_details"] != {} and item["product_asin"] != "NA":
+            if item["product_asin"] != "NA":
                 self.db[self.collection_name].find_one_and_update(
                     {"product_asin": item["product_asin"]},
                     {
                         "$push": {
                             "product_sale_price": item["product_sale_price"][0],
-                            "product_best_seller_rank": item[
-                                "product_best_seller_rank"
-                            ][0],
+                            # "product_best_seller_rank": item[
+                            #     "product_best_seller_rank"
+                            # ][0],
                         }
                     },
                     upsert=True,

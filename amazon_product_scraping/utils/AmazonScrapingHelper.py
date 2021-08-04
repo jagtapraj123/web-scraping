@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 
@@ -83,7 +83,7 @@ class AmazonScrapingHelper:
             .replace("\u20b9", "")
         )
         sale_price = []
-        now = datetime.now()
+        now = datetime.now() + timedelta(hours=5, minutes=30)
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         sale_price_dict = {}
         sale_price_dict["time"] = current_time

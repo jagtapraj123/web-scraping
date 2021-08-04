@@ -105,9 +105,9 @@ class AmazonProductSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        # filename = response.url.split("/")[-1] + ".html"
-        # with open(filename, "wb") as f:
-        #     f.write(response.body)
+        filename = response.url.split("/")[-1] + ".html"
+        with open(filename, "wb") as f:
+            f.write(response.body)
 
         helper = AmazonScrapingHelper()
         items = AmazonProductScrapingItem()
