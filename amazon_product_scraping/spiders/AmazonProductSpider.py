@@ -36,9 +36,10 @@ class AmazonProductSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_failed_file_path"])
-    start_urls = ["http://amazon.in/dp/B08T3325CD"]
-    
+    start_urls = FileHelper.get_urls(input_data["product_data"]["all_urls_path"])
+    # start_urls = ["https://www.amazon.in/dp/B08HJC7GXS", "https://www.amazon.in/dp/B01IOPY3G4", "https://www.amazon.in/dp/B07HMCC4RF", "https://www.amazon.in/dp/B01HBA4VMY", "https://www.amazon.in/dp/B07HLZDR9S", "https://www.amazon.in/dp/B01N1KE7D5", "https://www.amazon.in/dp/B01HBA74PU", "https://www.amazon.in/dp/B07FJ7W7PH", "https://www.amazon.in/dp/B07M857C6Z", "https://www.amazon.in/dp/B089H69JCW"]
+    # start_urls = ["https://www.amazon.in/dp/B08T3325CD", "https://www.amazon.in/dp/B08CSHBPD5", "https://www.amazon.in/dp/B08T2Y2Q4T", "https://www.amazon.in/dp/B006LXAG4K", "https://www.amazon.in/dp/B00IF3W4DK", "https://www.amazon.in/dp/B074VG8ZH8", "https://www.amazon.in/dp/B08K3HQ4M4", "https://www.amazon.in/dp/B07MNZTKBS", "https://www.amazon.in/dp/B01KC4BWN2", "https://www.amazon.in/dp/B08QV7QXF2"]
+
     def start_requests(self):
         """
         This class method must return an iterable with the first Requests to crawl for this spider.
@@ -105,9 +106,9 @@ class AmazonProductSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        filename = response.url.split("/")[-1] + ".html"
-        with open(filename, "wb") as f:
-            f.write(response.body)
+        # filename = response.url.split("/")[-1] + ".html"
+        # with open(filename, "wb") as f:
+        #     f.write(response.body)
 
         helper = AmazonScrapingHelper()
         items = AmazonProductScrapingItem()
@@ -266,23 +267,7 @@ class AmazonProductSpider(scrapy.Spider):
             logging.error("Exception occurred", exc_info=True)
             variations = "NA"
             if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
-
-        try:
-            general_information = helper.get_general_information(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            general_information = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
-
-        try:
-            additional_information = helper.get_additional_information(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            additional_information = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)        
+                self.failed_urls.append(response.url)      
 
         dict = {"URL": self.failed_urls}
         df = pd.DataFrame(dict)
@@ -310,8 +295,6 @@ class AmazonProductSpider(scrapy.Spider):
         items["product_bought_together"] = bought_together
         items["product_subscription_discount"] = subscription_discount
         items["product_variations"] = variations
-        items["product_general_information"] = general_information
-        items["product_additional_information"] = additional_information
         yield items
 
     def handle_spider_closed(self, reason):
