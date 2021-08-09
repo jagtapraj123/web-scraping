@@ -37,6 +37,7 @@ class AmazonProductSpider(scrapy.Spider):
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["all_urls_path"])
+    # start_urls = ["http://amazon.in/dp/B08T3325CD", "https://www.amazon.in/dp/B01IOPY3G4"]
     # start_urls = ["https://www.amazon.in/dp/B08HJC7GXS", "https://www.amazon.in/dp/B01IOPY3G4", "https://www.amazon.in/dp/B07HMCC4RF", "https://www.amazon.in/dp/B01HBA4VMY", "https://www.amazon.in/dp/B07HLZDR9S", "https://www.amazon.in/dp/B01N1KE7D5", "https://www.amazon.in/dp/B01HBA74PU", "https://www.amazon.in/dp/B07FJ7W7PH", "https://www.amazon.in/dp/B07M857C6Z", "https://www.amazon.in/dp/B089H69JCW"]
     # start_urls = ["https://www.amazon.in/dp/B08T3325CD", "https://www.amazon.in/dp/B08CSHBPD5", "https://www.amazon.in/dp/B08T2Y2Q4T", "https://www.amazon.in/dp/B006LXAG4K", "https://www.amazon.in/dp/B00IF3W4DK", "https://www.amazon.in/dp/B074VG8ZH8", "https://www.amazon.in/dp/B08K3HQ4M4", "https://www.amazon.in/dp/B07MNZTKBS", "https://www.amazon.in/dp/B01KC4BWN2", "https://www.amazon.in/dp/B08QV7QXF2"]
 
@@ -202,7 +203,9 @@ class AmazonProductSpider(scrapy.Spider):
                 self.failed_urls.append(response.url)
 
         try:
-            best_seller_rank = helper.get_best_seller_rank(response)
+            best_seller_rank = helper.get_best_seller_rank_1(response)
+            if best_seller_rank[0]["value"] == "NA":
+            	best_seller_rank = helper.get_best_seller_rank_2(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             best_seller_rank = "NA"
@@ -210,7 +213,9 @@ class AmazonProductSpider(scrapy.Spider):
                 self.failed_urls.append(response.url)
 
         try:
-            product_details = helper.get_product_details(response)
+            product_details = helper.get_product_details_1(response)
+            if product_details == {}:
+            	product_details = helper.get_product_details_2(response)
             if product_details == {} and response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
         except Exception:

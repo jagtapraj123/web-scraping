@@ -267,136 +267,136 @@ class AmazonScrapingHelper:
             icons.append(i.strip())
         return icons
 
-    # def get_best_seller_rank(self, response):
-    #     """
-    #     Parameters
-    #     ----------
-    #     response : object
-    #         represents an HTTP response
+    def get_best_seller_rank_1(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
 
-    #     Returns
-    #     -------
-    #     array
-    #         object with current time and best seller rank of the amazon product
-    #     """
+        Returns
+        -------
+        array
+            object with current time and best seller rank of the amazon product
+        """
 
-    #     product_details_xpath_text = response.xpath(
-    #         '//div[@id="detailBullets_feature_div"]//span/text()'
-    #     ).getall()
-    #     if product_details_xpath_text:
-    #         product_details_strip = [
-    #             i.strip().replace("\n", "") for i in product_details_xpath_text
-    #         ]
-    #         product_details = [
-    #             i.replace("\u200f", "").replace("\u200e", "")
-    #             for i in product_details_strip
-    #             if i != ""
-    #         ]
-    #         if "Best Sellers Rank:" in product_details:
-    #             seller_rank_1_xpath_text = response.xpath(
-    #                 '//div[@id="detailBullets_feature_div"]//span[@class="a-list-item"]/text()'
-    #             ).getall()
-    #             seller_rank_2_xpath_text = response.xpath(
-    #                 '//div[@id="detailBullets_feature_div"]//span[@class="a-list-item"]//a/text()'
-    #             ).getall()
-    #             seller_rank_1_strip = [
-    #                 i.strip().replace("\n", "").replace("(", "").replace(")", "")
-    #                 for i in seller_rank_1_xpath_text
-    #             ]
-    #             seller_rank_1 = [i for i in seller_rank_1_strip if i != ""]
-    #             seller_rank_2_strip = [
-    #                 i.strip().replace("\n", "") for i in seller_rank_2_xpath_text
-    #             ]
-    #             seller_rank_2 = [i for i in seller_rank_2_strip if i != ""]
-    #             first_element_seller_rank = ["(", seller_rank_2[0], ")"]
-    #             seller_rank_2[0] = "".join(first_element_seller_rank)
-    #             seller_rank_list = []
-    #             for i, j in zip(seller_rank_1, seller_rank_2):
-    #                 seller_rank_list.append(i)
-    #                 seller_rank_list.append(j)
-    #             seller_rank = " ".join(seller_rank_list)
-    #             best_seller_rank = []
-    #             now = datetime.now()
-    #             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    #             best_seller_rank_dict = {}
-    #             best_seller_rank_dict["time"] = current_time
-    #             best_seller_rank_dict["value"] = seller_rank
-    #             best_seller_rank.append(best_seller_rank_dict)
-    #             return best_seller_rank
-    #         else:
-    #             seller_rank = "NA"
-    #             best_seller_rank = []
-    #             now = datetime.now()
-    #             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    #             best_seller_rank_dict = {}
-    #             best_seller_rank_dict["time"] = current_time
-    #             best_seller_rank_dict["value"] = seller_rank
-    #             best_seller_rank.append(best_seller_rank_dict)
-    #             return best_seller_rank
-    #     else:
-    #         seller_rank = "NA"
-    #         best_seller_rank = []
-    #         now = datetime.now()
-    #         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    #         best_seller_rank_dict = {}
-    #         best_seller_rank_dict["time"] = current_time
-    #         best_seller_rank_dict["value"] = seller_rank
-    #         best_seller_rank.append(best_seller_rank_dict)
-    #         return best_seller_rank
+        product_details_xpath_text = response.xpath(
+            '//div[@id="detailBullets_feature_div"]//span/text()'
+        ).getall()
+        if product_details_xpath_text:
+            product_details_strip = [
+                i.strip().replace("\n", "") for i in product_details_xpath_text
+            ]
+            product_details = [
+                i.replace("\u200f", "").replace("\u200e", "")
+                for i in product_details_strip
+                if i != ""
+            ]
+            if "Best Sellers Rank:" in product_details:
+                seller_rank_1_xpath_text = response.xpath(
+                    '//div[@id="detailBullets_feature_div"]//span[@class="a-list-item"]/text()'
+                ).getall()
+                seller_rank_2_xpath_text = response.xpath(
+                    '//div[@id="detailBullets_feature_div"]//span[@class="a-list-item"]//a/text()'
+                ).getall()
+                seller_rank_1_strip = [
+                    i.strip().replace("\n", "").replace("(", "").replace(")", "")
+                    for i in seller_rank_1_xpath_text
+                ]
+                seller_rank_1 = [i for i in seller_rank_1_strip if i != ""]
+                seller_rank_2_strip = [
+                    i.strip().replace("\n", "") for i in seller_rank_2_xpath_text
+                ]
+                seller_rank_2 = [i for i in seller_rank_2_strip if i != ""]
+                first_element_seller_rank = ["(", seller_rank_2[0], ")"]
+                seller_rank_2[0] = "".join(first_element_seller_rank)
+                seller_rank_list = []
+                for i, j in zip(seller_rank_1, seller_rank_2):
+                    seller_rank_list.append(i)
+                    seller_rank_list.append(j)
+                seller_rank = " ".join(seller_rank_list)
+                best_seller_rank = []
+                now = datetime.now()
+                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                best_seller_rank_dict = {}
+                best_seller_rank_dict["time"] = current_time
+                best_seller_rank_dict["value"] = seller_rank
+                best_seller_rank.append(best_seller_rank_dict)
+                return best_seller_rank
+            else:
+                seller_rank = "NA"
+                best_seller_rank = []
+                now = datetime.now()
+                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                best_seller_rank_dict = {}
+                best_seller_rank_dict["time"] = current_time
+                best_seller_rank_dict["value"] = seller_rank
+                best_seller_rank.append(best_seller_rank_dict)
+                return best_seller_rank
+        else:
+            seller_rank = "NA"
+            best_seller_rank = []
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            best_seller_rank_dict = {}
+            best_seller_rank_dict["time"] = current_time
+            best_seller_rank_dict["value"] = seller_rank
+            best_seller_rank.append(best_seller_rank_dict)
+            return best_seller_rank
 
-    # def get_product_details(self, response):
-    #     """
-    #     Parameters
-    #     ----------
-    #     response : object
-    #         represents an HTTP response
+    def get_product_details_1(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
 
-    #     Returns
-    #     -------
-    #     object
-    #         product details of the amazon product
-    #     """
+        Returns
+        -------
+        object
+            product details of the amazon product
+        """
 
-    #     product_details_xpath_text = response.xpath(
-    #         '//div[@id="detailBullets_feature_div"]//span/text()'
-    #     ).getall()
-    #     if product_details_xpath_text:
-    #         product_details_strip = [
-    #             i.strip().replace("\n", "") for i in product_details_xpath_text
-    #         ]
-    #         product_details = [
-    #             i.replace("\u200f", "").replace("\u200e", "")
-    #             for i in product_details_strip
-    #             if i != ""
-    #         ]
-    #         if "Best Sellers Rank:" in product_details:
-    #             index_best_seller_rank = product_details.index("Best Sellers Rank:")
-    #             product_details = product_details[0:index_best_seller_rank]
-    #         else:
-    #             if "Customer Reviews:" in product_details:
-    #                 index_best_seller_rank = product_details.index("Customer Reviews:")
-    #                 product_details = product_details[0:index_best_seller_rank]
-    #         details = {}
-    #         i = 0
-    #         while i < len(product_details):
-    #             details[product_details[i].replace(":", "")] = product_details[i + 1]
-    #             i += 2
-    #         if self.get_best_seller_rank(response)[0]["value"] != "NA":
-    #             details["Best Sellers Rank"] = self.get_best_seller_rank(response)[0][
-    #                 "value"
-    #             ]
-    #         if (
-    #             self.get_rating(response) != "NA"
-    #             and self.get_total_reviews(response) != "NA"
-    #         ):
-    #             details["Customer Reviews"] = " ".join(
-    #                 [self.get_rating(response), self.get_total_reviews(response)]
-    #             )
-    #         return details
+        product_details_xpath_text = response.xpath(
+            '//div[@id="detailBullets_feature_div"]//span/text()'
+        ).getall()
+        if product_details_xpath_text:
+            product_details_strip = [
+                i.strip().replace("\n", "") for i in product_details_xpath_text
+            ]
+            product_details = [
+                i.replace("\u200f", "").replace("\u200e", "")
+                for i in product_details_strip
+                if i != ""
+            ]
+            if "Best Sellers Rank:" in product_details:
+                index_best_seller_rank = product_details.index("Best Sellers Rank:")
+                product_details = product_details[0:index_best_seller_rank]
+            else:
+                if "Customer Reviews:" in product_details:
+                    index_best_seller_rank = product_details.index("Customer Reviews:")
+                    product_details = product_details[0:index_best_seller_rank]
+            details = {}
+            i = 0
+            while i < len(product_details):
+                details[product_details[i].replace(":", "")] = product_details[i + 1]
+                i += 2
+            if self.get_best_seller_rank_1(response)[0]["value"] != "NA":
+                details["Best Sellers Rank"] = self.get_best_seller_rank_1(response)[0][
+                    "value"
+                ]
+            if (
+                self.get_rating(response) != "NA"
+                and self.get_total_reviews(response) != "NA"
+            ):
+                details["Customer Reviews"] = " ".join(
+                    [self.get_rating(response), self.get_total_reviews(response)]
+                )
+            return details
 
-    #     return {}
+        return {}
 
-    def get_best_seller_rank(self, response):
+    def get_best_seller_rank_2(self, response):
         """
         Parameters
         ----------
@@ -469,7 +469,7 @@ class AmazonScrapingHelper:
             best_seller_rank.append(best_seller_rank_dict)
             return best_seller_rank
 
-    def get_product_details(self, response):
+    def get_product_details_2(self, response):
         """
         Parameters
         ----------
@@ -506,7 +506,7 @@ class AmazonScrapingHelper:
                     [self.get_rating(response), self.get_total_reviews(response)]
                 )
         if "Best Sellers Rank" in additional_information_strip_left_side:
-            product_details["Best Sellers Rank"] = self.get_best_seller_rank(response)[0][
+            product_details["Best Sellers Rank"] = self.get_best_seller_rank_2(response)[0][
                     "value"
                 ]
 

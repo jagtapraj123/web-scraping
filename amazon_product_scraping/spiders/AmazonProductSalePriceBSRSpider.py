@@ -129,13 +129,15 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
-        # try:
-        #     best_seller_rank = helper.get_best_seller_rank(response)
-        # except Exception:
-        #     logging.error("Exception occurred", exc_info=True)
-        #     best_seller_rank = "NA"
-        #     if response.url not in self.failed_urls:
-        #         self.failed_urls.append(response.url)
+        try:
+            best_seller_rank = helper.get_best_seller_rank_1(response)
+            if best_seller_rank[0]["value"] == "NA":
+            	best_seller_rank = helper.get_best_seller_rank_2(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            best_seller_rank = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
 
         try:
             asin = helper.get_asin(response)
@@ -147,15 +149,17 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
-        # try:
-        #     product_details = helper.get_product_details(response)
-        #     if product_details == {} and response.url not in self.failed_urls:
-        #         self.failed_urls.append(response.url)
-        # except Exception:
-        #     logging.error("Exception occurred", exc_info=True)
-        #     product_details = "NA"
-        #     if response.url not in self.failed_urls:
-        #         self.failed_urls.append(response.url)
+        try:
+            product_details = helper.get_product_details_1(response)
+            if product_details == {}:
+            	product_details = helper.get_product_details_2(response)
+            if product_details == {} and response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            product_details = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
 
         dict = {"URL": self.failed_urls}
         df = pd.DataFrame(dict)
@@ -166,9 +170,9 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
 
         items["product_name"] = title
         items["product_sale_price"] = sale_price
-        # items["product_best_seller_rank"] = best_seller_rank
+        items["product_best_seller_rank"] = best_seller_rank
         items["product_asin"] = asin
-        # items["product_details"] = product_details
+        items["product_details"] = product_details
         yield items
 
     def handle_spider_closed(self, reason):

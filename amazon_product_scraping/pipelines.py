@@ -8,6 +8,7 @@
 
 import pymongo
 from itemadapter import ItemAdapter
+from datetime import datetime
 
 
 class MongoDBPipeline:
@@ -92,17 +93,43 @@ class MongoDBPipeline:
             return item
 
         if spider.name == "AmazonProductSalePriceBSRSpider":
-            if item["product_asin"] != "NA":
+            existing_item = self.db[self.collection_name].find_one(
+                {"product_asin": item["product_asin"]}
+            )
+            if existing_item and item["product_details"] != {} and item["product_asin"] != "NA":
                 self.db[self.collection_name].find_one_and_update(
                     {"product_asin": item["product_asin"]},
                     {
                         "$push": {
                             "product_sale_price": item["product_sale_price"][0],
-                            # "product_best_seller_rank": item[
-                            #     "product_best_seller_rank"
-                            # ][0],
+                            "product_best_seller_rank": item[
+                                "product_best_seller_rank"
+                            ][0],
                         }
                     },
                     upsert=True,
                 )
+            return item
+
+        if spider.name == "AmazonProductBSRSpider":
+            for i,j in zip(item["asin"], item["bsr"]):
+                existing_item = self.db[self.collection_name].find_one(
+                {"product_asin": i}
+            )
+                if existing_item:
+                    now = datetime.now() 
+                    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                    best_seller_rank = {}
+                    best_seller_rank["time"] = current_time
+                    best_seller_rank["value"] = j
+                    self.db[self.collection_name].find_one_and_update(
+                        {"product_asin": i},
+                        {
+                            "$push": {
+                                "product_best_seller_rank": best_seller_rank,
+                            }
+                        },
+                        upsert=True,
+                    )
+
             return item
