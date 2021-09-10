@@ -24,8 +24,11 @@ class AmazonProductSpider(scrapy.Spider):
     name = "AmazonProductBSRSpider"
     rotate_user_agent = True
     allowed_domains = ["amazon.in"]
-    start_urls = ["https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031", "https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2"]
-    
+    start_urls = [
+        "https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031",
+        "https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2",
+    ]
+
     def start_requests(self):
         """
         This class method must return an iterable with the first Requests to crawl for this spider.
@@ -60,11 +63,17 @@ class AmazonProductSpider(scrapy.Spider):
         """
 
         items = AmazonProductScrapingItem()
-        links_xpath = response.xpath('//div[@id="zg-center-div"]').xpath('//a[@class="a-link-normal"]/@href').extract()
+        links_xpath = (
+            response.xpath('//div[@id="zg-center-div"]')
+            .xpath('//a[@class="a-link-normal"]/@href')
+            .extract()
+        )
         links = [i for i in links_xpath if "/dp/" in i]
         asin = [(i.split("/dp/")[1]).split("/")[0] for i in links]
-        bsr_xpath = response.xpath('//div[@id="zg-center-div"]//span//span//text()').extract()
-        bsr = [i+" in Shampoos (Beauty)" for i in bsr_xpath if "#" in i]
+        bsr_xpath = response.xpath(
+            '//div[@id="zg-center-div"]//span//span//text()'
+        ).extract()
+        bsr = [i + " in Shampoos (Beauty)" for i in bsr_xpath if "#" in i]
         items["links"] = links
         items["asin"] = asin
         items["bsr"] = bsr

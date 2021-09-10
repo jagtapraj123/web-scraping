@@ -9,6 +9,7 @@
 import pymongo
 from itemadapter import ItemAdapter
 from datetime import datetime
+from pymongo import ReturnDocument
 
 
 class MongoDBPipeline:
@@ -84,19 +85,46 @@ class MongoDBPipeline:
                 {"product_asin": item["product_asin"]}
             )
             if (
-                not existing_item
+                existing_item
                 and item["product_details"] != {}
                 and item["product_asin"] != "NA"
             ):
-                self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
-                return item
+                # self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
+                self.db[self.collection_name].find_one_and_update(
+                    {"product_asin": item["product_asin"]},
+                    {
+                        "$set": {
+                            "product_name": item["product_name"],
+                            "product_brand": item["product_brand"],
+                            "product_offers": item["product_offers"],
+                            "product_original_price": item["product_original_price"],
+                            "product_fullfilled": item["product_fullfilled"],
+                            "product_rating": item["product_rating"],
+                            "product_total_reviews": item["product_total_reviews"],
+                            "product_availability": item["product_availability"],
+                            "product_category": item["product_category"],
+                            "product_icons": item["product_icons"],
+                            "product_details": item["product_details"],
+                            "product_important_information": item["product_important_information"],
+                            "product_description": item["product_description"],
+                            "product_bought_together": item["product_bought_together"],
+                            "product_subscription_discount": item["product_subscription_discount"],
+                            "product_variations": item["product_variations"]
+                        }
+                    },
+                    upsert=True,
+                )
             return item
 
         if spider.name == "AmazonProductSalePriceBSRSpider":
             existing_item = self.db[self.collection_name].find_one(
                 {"product_asin": item["product_asin"]}
             )
-            if existing_item and item["product_details"] != {} and item["product_asin"] != "NA":
+            if (
+                existing_item
+                and item["product_details"] != {}
+                and item["product_asin"] != "NA"
+            ):
                 self.db[self.collection_name].find_one_and_update(
                     {"product_asin": item["product_asin"]},
                     {
@@ -112,12 +140,12 @@ class MongoDBPipeline:
             return item
 
         if spider.name == "AmazonProductBSRSpider":
-            for i,j in zip(item["asin"], item["bsr"]):
+            for i, j in zip(item["asin"], item["bsr"]):
                 existing_item = self.db[self.collection_name].find_one(
-                {"product_asin": i}
-            )
+                    {"product_asin": i}
+                )
                 if existing_item:
-                    now = datetime.now() 
+                    now = datetime.now()
                     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                     best_seller_rank = {}
                     best_seller_rank["time"] = current_time

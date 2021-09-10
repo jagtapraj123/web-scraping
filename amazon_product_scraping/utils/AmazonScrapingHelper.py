@@ -451,7 +451,7 @@ class AmazonScrapingHelper:
             else:
                 seller_rank = "NA"
                 best_seller_rank = []
-                now = datetime.now() 
+                now = datetime.now()
                 current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 best_seller_rank_dict = {}
                 best_seller_rank_dict["time"] = current_time
@@ -461,7 +461,7 @@ class AmazonScrapingHelper:
         else:
             seller_rank = "NA"
             best_seller_rank = []
-            now = datetime.now() 
+            now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             best_seller_rank_dict = {}
             best_seller_rank_dict["time"] = current_time
@@ -482,33 +482,63 @@ class AmazonScrapingHelper:
             product details of the amazon product
         """
 
-        general_information_xpath_left_side = response.xpath('//table[@id="productDetails_techSpec_section_1"]//tr//th/text()').getall()
-        general_information_strip_left_side = [i.strip().replace("\n", "") for i in general_information_xpath_left_side]
-        general_information_xpath_right_side = response.xpath('//table[@id="productDetails_techSpec_section_1"]//tr//td/text()').getall()
-        general_information_strip_right_side = [i.strip().replace("\n", "").replace("\u200e", "") for i in general_information_xpath_right_side]
+        general_information_xpath_left_side = response.xpath(
+            '//table[@id="productDetails_techSpec_section_1"]//tr//th/text()'
+        ).getall()
+        general_information_strip_left_side = [
+            i.strip().replace("\n", "") for i in general_information_xpath_left_side
+        ]
+        general_information_xpath_right_side = response.xpath(
+            '//table[@id="productDetails_techSpec_section_1"]//tr//td/text()'
+        ).getall()
+        general_information_strip_right_side = [
+            i.strip().replace("\n", "").replace("\u200e", "")
+            for i in general_information_xpath_right_side
+        ]
 
         product_details = {}
-        for i, j in zip(general_information_strip_left_side, general_information_strip_right_side):
+        for i, j in zip(
+            general_information_strip_left_side, general_information_strip_right_side
+        ):
             product_details[i] = j
 
-        additional_information_xpath_left_side = response.xpath('//table[@id="productDetails_detailBullets_sections1"]//tr//th/text()').getall()
-        additional_information_strip_left_side = [i.strip().replace("\n", "") for i in additional_information_xpath_left_side]
-        additional_information_left_side = [i for i in additional_information_strip_left_side if i != "Customer Reviews" and i != "Best Sellers Rank"]
-        additional_information_xpath_right_side = response.xpath('//table[@id="productDetails_detailBullets_sections1"]//tr//td/text()').getall()
-        additional_information_strip_right_side = [i.strip().replace("\n", "").replace("\u200e", "") for i in additional_information_xpath_right_side]
-        additional_information_right_side = [i for i in additional_information_strip_right_side if "out of" not in i and i != ""]
+        additional_information_xpath_left_side = response.xpath(
+            '//table[@id="productDetails_detailBullets_sections1"]//tr//th/text()'
+        ).getall()
+        additional_information_strip_left_side = [
+            i.strip().replace("\n", "") for i in additional_information_xpath_left_side
+        ]
+        additional_information_left_side = [
+            i
+            for i in additional_information_strip_left_side
+            if i != "Customer Reviews" and i != "Best Sellers Rank"
+        ]
+        additional_information_xpath_right_side = response.xpath(
+            '//table[@id="productDetails_detailBullets_sections1"]//tr//td/text()'
+        ).getall()
+        additional_information_strip_right_side = [
+            i.strip().replace("\n", "").replace("\u200e", "")
+            for i in additional_information_xpath_right_side
+        ]
+        additional_information_right_side = [
+            i
+            for i in additional_information_strip_right_side
+            if "out of" not in i and i != ""
+        ]
 
-        for i, j in zip(additional_information_left_side, additional_information_right_side):
+        for i, j in zip(
+            additional_information_left_side, additional_information_right_side
+        ):
             product_details[i] = j
 
         if "Customer Reviews" in additional_information_strip_left_side:
             product_details["Customer Reviews"] = " ".join(
-                    [self.get_rating(response), self.get_total_reviews(response)]
-                )
+                [self.get_rating(response), self.get_total_reviews(response)]
+            )
         if "Best Sellers Rank" in additional_information_strip_left_side:
-            product_details["Best Sellers Rank"] = self.get_best_seller_rank_2(response)[0][
-                    "value"
-                ]
+            product_details["Best Sellers Rank"] = self.get_best_seller_rank_2(
+                response
+            )[0]["value"]
 
         return product_details
 
