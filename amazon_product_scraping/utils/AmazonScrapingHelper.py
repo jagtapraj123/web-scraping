@@ -154,22 +154,53 @@ class AmazonScrapingHelper:
         """
 
         if response.xpath('//span[@class="a-icon-text-fba"]/text()').extract_first():
-            fullfilled = response.xpath(
+            fullfilled_xpath_text = response.xpath(
                 '//span[@class="a-icon-text-fba"]/text()'
             ).extract_first()
+            fullfilled = []
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            fullfilled_dict = {}
+            fullfilled_dict["time"] = current_time
+            fullfilled_dict["value"] = fullfilled_xpath_text
+            fullfilled.append(fullfilled_dict)
             return fullfilled
+
         elif (
             "Fulfilled by Amazon"
             in response.xpath('//div[@id="merchant-info"]//a/text()').extract()
         ):
-            return "Fulfilled"
+            fullfilled = []
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            fullfilled_dict = {}
+            fullfilled_dict["time"] = current_time
+            fullfilled_dict["value"] = "Fulfilled"
+            fullfilled.append(fullfilled_dict)
+            return fullfilled
+
         elif (
             "fulfilled"
             in response.xpath('//div[@id="merchant-info"]/text()').extract_first()
         ):
-            return "Fulfilled"
+            fullfilled = []
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            fullfilled_dict = {}
+            fullfilled_dict["time"] = current_time
+            fullfilled_dict["value"] = "Fulfilled"
+            fullfilled.append(fullfilled_dict)
+            return fullfilled
+
         else:
-            return "NA"
+            fullfilled = []
+            now = datetime.now()
+            current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+            fullfilled_dict = {}
+            fullfilled_dict["time"] = current_time
+            fullfilled_dict["value"] = "NA"
+            fullfilled.append(fullfilled_dict)
+            return fullfilled
 
     def get_rating(self, response):
         """
@@ -222,9 +253,17 @@ class AmazonScrapingHelper:
         availability_xpath_text = (
             response.xpath('//div[@id="availability"]//text()').extract() or "NA"
         )
-        availability = (
+        availability_strip = (
             ("".join(availability_xpath_text).strip()).replace("\n", "")
         ).split(".")[0]
+
+        availability = []
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        availability_dict = {}
+        availability_dict["time"] = current_time
+        availability_dict["value"] = availability_strip
+        availability.append(availability_dict)
         return availability
 
     def get_category(self, response):
@@ -643,11 +682,26 @@ class AmazonScrapingHelper:
         ).extract_first()
         if subscription_discount_xpath_text:
             if len((subscription_discount_xpath_text.strip()).split("(")) != 1:
-                subscription_discount = (
+                subscription_discount_strip = (
                     (subscription_discount_xpath_text.strip()).split("(")[1]
                 ).split(")")[0]
+
+                subscription_discount = []
+                now = datetime.now()
+                current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+                subscription_discount_dict = {}
+                subscription_discount_dict["time"] = current_time
+                subscription_discount_dict["value"] = subscription_discount_strip
+                subscription_discount.append(subscription_discount_dict)
                 return subscription_discount
-        return "NA"
+        subscription_discount = []
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        subscription_discount_dict = {}
+        subscription_discount_dict["time"] = current_time
+        subscription_discount_dict["value"] = "NA"
+        subscription_discount.append(subscription_discount_dict)
+        return subscription_discount
 
     def get_variations(self, response):
         """

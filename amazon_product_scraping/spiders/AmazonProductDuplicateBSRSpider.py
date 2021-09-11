@@ -2,7 +2,7 @@ import scrapy
 from amazon_product_scraping.items import AmazonProductScrapingItem
 
 
-class AmazonProductBSRSpider(scrapy.Spider):
+class AmazonProductDuplicateBSRSpider(scrapy.Spider):
     """
     A class for scrapy spider.
 
@@ -21,7 +21,7 @@ class AmazonProductBSRSpider(scrapy.Spider):
     """
 
     handle_httpstatus_all = True
-    name = "AmazonProductBSRSpider"
+    name = "AmazonProductDuplicateBSRSpider"
     rotate_user_agent = True
     allowed_domains = ["amazon.in"]
     start_urls = [

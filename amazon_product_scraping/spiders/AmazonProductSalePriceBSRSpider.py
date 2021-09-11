@@ -35,8 +35,8 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    start_urls = FileHelper.get_urls(input_data["product_data"]["all_urls_path"])
-    # start_urls = ["http://amazon.in/dp/B0031TSC34"]
+    start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
+    # start_urls = ["http://amazon.in/dp/B08K3HQ4M4"]
 
     def start_requests(self):
         """
@@ -161,6 +161,30 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             if response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
 
+        try:
+            fullfilled = helper.get_fullfilled(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            fullfilled = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+
+        try:
+            availability = helper.get_availability(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            availability = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+
+        try:
+            subscription_discount = helper.get_subscription_discount(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            subscription_discount = "NA"
+            if response.url not in self.failed_urls:
+                self.failed_urls.append(response.url)
+
         dict = {"URL": self.failed_urls}
         df = pd.DataFrame(dict)
         df.to_csv(
@@ -173,6 +197,9 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         items["product_best_seller_rank"] = best_seller_rank
         items["product_asin"] = asin
         items["product_details"] = product_details
+        items["product_fullfilled"] = fullfilled
+        items["product_availability"] = availability
+        items["product_subscription_discount"] = subscription_discount
         yield items
 
     def handle_spider_closed(self, reason):

@@ -10,6 +10,8 @@ import pymongo
 from itemadapter import ItemAdapter
 from datetime import datetime
 from pymongo import ReturnDocument
+import pandas as pd
+from csv import writer
 
 
 class MongoDBPipeline:
@@ -94,22 +96,24 @@ class MongoDBPipeline:
                     {"product_asin": item["product_asin"]},
                     {
                         "$set": {
-                            "product_name": item["product_name"],
-                            "product_brand": item["product_brand"],
-                            "product_offers": item["product_offers"],
-                            "product_original_price": item["product_original_price"],
+                            # "product_name": item["product_name"],
+                            # "product_brand": item["product_brand"],
+                            # "product_offers": item["product_offers"],
+                            # "product_original_price": item["product_original_price"],
                             "product_fullfilled": item["product_fullfilled"],
-                            "product_rating": item["product_rating"],
-                            "product_total_reviews": item["product_total_reviews"],
+                            # "product_rating": item["product_rating"],
+                            # "product_total_reviews": item["product_total_reviews"],
                             "product_availability": item["product_availability"],
-                            "product_category": item["product_category"],
-                            "product_icons": item["product_icons"],
-                            "product_details": item["product_details"],
-                            "product_important_information": item["product_important_information"],
-                            "product_description": item["product_description"],
-                            "product_bought_together": item["product_bought_together"],
-                            "product_subscription_discount": item["product_subscription_discount"],
-                            "product_variations": item["product_variations"]
+                            # "product_category": item["product_category"],
+                            # "product_icons": item["product_icons"],
+                            # "product_details": item["product_details"],
+                            # "product_important_information": item["product_important_information"],
+                            # "product_description": item["product_description"],
+                            # "product_bought_together": item["product_bought_together"],
+                            "product_subscription_discount": item[
+                                "product_subscription_discount"
+                            ],
+                            # "product_variations": item["product_variations"]
                         }
                     },
                     upsert=True,
@@ -132,6 +136,11 @@ class MongoDBPipeline:
                             "product_sale_price": item["product_sale_price"][0],
                             "product_best_seller_rank": item[
                                 "product_best_seller_rank"
+                            ][0],
+                            "product_fullfilled": item["product_fullfilled"][0],
+                            "product_availability": item["product_availability"][0],
+                            "product_subscription_discount": item[
+                                "product_subscription_discount"
                             ][0],
                         }
                     },
@@ -159,5 +168,30 @@ class MongoDBPipeline:
                         },
                         upsert=True,
                     )
+            return item
+
+        if spider.name == "AmazonProductDuplicateBSRSpider":
+            urls = []
+            for i, j in zip(item["asin"], item["bsr"]):
+                existing_item = self.db[self.collection_name].find_one(
+                    {"product_asin": i}
+                )
+                if not existing_item:
+                    urls.append("http://amazon.in/dp/" + i)
+                    with open(
+                        "amazon_product_scraping/data/InputData/amazon_product_data.csv",
+                        "a",
+                        newline="",
+                    ) as file:
+                        writer_object = writer(file)
+                        writer_object.writerow(["http://amazon.in/dp/" + i])
+                        file.close()
+
+            dict = {"URL": urls}
+            df = pd.DataFrame(dict)
+            df.to_csv(
+                "amazon_product_scraping/data/InputData/amazon_new_data.csv",
+                index=False,
+            )
 
             return item

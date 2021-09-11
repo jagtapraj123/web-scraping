@@ -36,10 +36,10 @@ class AmazonProductSpider(scrapy.Spider):
     allowed_domains = ["amazon.in"]
     with open("amazon_product_scraping/configuration_file/config.json") as file:
         input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["all_urls_path"])
-    # start_urls = ["http://amazon.in/dp/B0031TSC34"]
-    start_urls = ["http://amazon.in/dp/B0031TSC34", "http://amazon.in/dp/B08HJC7GXS", "http://amazon.in/dp/B08HH3YLGZ", "http://amazon.in/dp/B01N1KE7D5", "http://amazon.in/dp/B01HBA74PU", "http://amazon.in/dp/B01IOPY3G4", "http://amazon.in/dp/B00AREI5KG", "http://amazon.in/dp/B01H7BOYNS", "http://amazon.in/dp/B01HBA4VMY", "http://amazon.in/dp/B077SSHGPM", "http://amazon.in/dp/B08BXLVDF1", "http://amazon.in/dp/B081BG8LDS", "http://amazon.in/dp/B08BXJ3WD9", "http://amazon.in/dp/B01BK7FF24", "http://amazon.in/dp/B07FJ7NDGK", "http://amazon.in/dp/B07MQWT396", "http://amazon.in/dp/B07M857C6Z", "http://amazon.in/dp/B07FJ7W7PH", "http://amazon.in/dp/B07F7LB4T9", "http://amazon.in/dp/B089H69JCW", "http://amazon.in/dp/B07HLZDR9S", "http://amazon.in/dp/B07HMCC4RF", "http://amazon.in/dp/B07HMCZJ2P", "http://amazon.in/dp/B07HLZDKNN", "http://amazon.in/dp/B01CGETA9Y", "http://amazon.in/dp/B082Y7WWH1", "http://amazon.in/dp/B07TWQF5GH", "http://amazon.in/dp/B07QF8FLYN", "http://amazon.in/dp/B082Y8VVKG", "http://amazon.in/dp/B088HP22TP", "http://amazon.in/dp/B07J314NP8", "http://amazon.in/dp/B071P13PSJ", "http://amazon.in/dp/B01M9EB7ZK", "http://amazon.in/dp/B093SXXN5V", "http://amazon.in/dp/B08HP7LJ7K", "http://amazon.in/dp/B093SWNYYS"]
-    
+    start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
+    # start_urls = ["http://amazon.in/dp/B08K3HQ4M4"]
+    # start_urls = ["http://amazon.in/dp/B0031TSC34", "http://amazon.in/dp/B08HJC7GXS", "http://amazon.in/dp/B08HH3YLGZ", "http://amazon.in/dp/B01N1KE7D5", "http://amazon.in/dp/B01HBA74PU", "http://amazon.in/dp/B01IOPY3G4", "http://amazon.in/dp/B00AREI5KG", "http://amazon.in/dp/B01H7BOYNS", "http://amazon.in/dp/B01HBA4VMY", "http://amazon.in/dp/B077SSHGPM", "http://amazon.in/dp/B08BXLVDF1", "http://amazon.in/dp/B081BG8LDS", "http://amazon.in/dp/B08BXJ3WD9", "http://amazon.in/dp/B01BK7FF24", "http://amazon.in/dp/B07FJ7NDGK", "http://amazon.in/dp/B07MQWT396", "http://amazon.in/dp/B07M857C6Z", "http://amazon.in/dp/B07FJ7W7PH", "http://amazon.in/dp/B07F7LB4T9", "http://amazon.in/dp/B089H69JCW", "http://amazon.in/dp/B07HLZDR9S", "http://amazon.in/dp/B07HMCC4RF", "http://amazon.in/dp/B07HMCZJ2P", "http://amazon.in/dp/B07HLZDKNN", "http://amazon.in/dp/B01CGETA9Y", "http://amazon.in/dp/B082Y7WWH1", "http://amazon.in/dp/B07TWQF5GH", "http://amazon.in/dp/B07QF8FLYN", "http://amazon.in/dp/B082Y8VVKG", "http://amazon.in/dp/B088HP22TP", "http://amazon.in/dp/B07J314NP8", "http://amazon.in/dp/B071P13PSJ", "http://amazon.in/dp/B01M9EB7ZK", "http://amazon.in/dp/B093SXXN5V", "http://amazon.in/dp/B08HP7LJ7K", "http://amazon.in/dp/B093SWNYYS"]
+
     def start_requests(self):
         """
         This class method must return an iterable with the first Requests to crawl for this spider.
@@ -109,7 +109,7 @@ class AmazonProductSpider(scrapy.Spider):
         # filename = response.url.split("/")[-1] + ".html"
         # with open(filename, "wb") as f:
         #     f.write(response.body)
-
+        print(response)
         helper = AmazonScrapingHelper()
         items = AmazonProductScrapingItem()
 
@@ -204,7 +204,7 @@ class AmazonProductSpider(scrapy.Spider):
         try:
             best_seller_rank = helper.get_best_seller_rank_1(response)
             if best_seller_rank[0]["value"] == "NA":
-            	best_seller_rank = helper.get_best_seller_rank_2(response)
+                best_seller_rank = helper.get_best_seller_rank_2(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             best_seller_rank = "NA"
@@ -214,7 +214,7 @@ class AmazonProductSpider(scrapy.Spider):
         try:
             product_details = helper.get_product_details_1(response)
             if product_details == {}:
-            	product_details = helper.get_product_details_2(response)
+                product_details = helper.get_product_details_2(response)
             if product_details == {} and response.url not in self.failed_urls:
                 self.failed_urls.append(response.url)
         except Exception:
@@ -282,7 +282,7 @@ class AmazonProductSpider(scrapy.Spider):
 
         items["product_name"] = title
         items["product_brand"] = brand
-        # items["product_sale_price"] = sale_price
+        items["product_sale_price"] = sale_price
         items["product_offers"] = offers
         items["product_original_price"] = original_price
         items["product_fullfilled"] = fullfilled
@@ -291,7 +291,7 @@ class AmazonProductSpider(scrapy.Spider):
         items["product_availability"] = availability
         items["product_category"] = category
         items["product_icons"] = icons
-        # items["product_best_seller_rank"] = best_seller_rank
+        items["product_best_seller_rank"] = best_seller_rank
         items["product_details"] = product_details
         items["product_asin"] = asin
         items["product_important_information"] = important_information
