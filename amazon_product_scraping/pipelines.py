@@ -178,20 +178,18 @@ class MongoDBPipeline:
                 )
                 if not existing_item:
                     urls.append("http://amazon.in/dp/" + i)
-                    with open(
-                        "amazon_product_scraping/data/InputData/amazon_product_data.csv",
-                        "a",
-                        newline="",
-                    ) as file:
-                        writer_object = writer(file)
-                        writer_object.writerow(["http://amazon.in/dp/" + i])
-                        file.close()
 
             dict = {"URL": urls}
             df = pd.DataFrame(dict)
+            df.drop(df.tail(1).index,inplace=True)
             df.to_csv(
                 "amazon_product_scraping/data/InputData/amazon_new_data.csv",
                 index=False,
             )
+
+            df1 = pd.read_csv("amazon_product_scraping/data/InputData/amazon_product_data.csv")
+            combined = df1.append(df)
+            with open('amazon_product_scraping/data/InputData/amazon_product_data.csv', 'w', encoding='utf-8', newline="") as file:
+                combined.to_csv(file, index=False)
 
             return item
