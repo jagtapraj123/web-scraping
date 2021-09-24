@@ -5,7 +5,7 @@ import pandas as pd
 # File path
 file_path = "data.json"
 
-def Convert_Json_To_CSV(file_path)
+def Convert_Json_To_CSV(file_path):
 	# Read json file
 	with open(file_path, encoding="utf8") as file:
 	    data = file.read()
