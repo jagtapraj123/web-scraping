@@ -38,7 +38,7 @@ class AmazonProductSpider(scrapy.Spider):
         input_data = json.load(file)
     start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])
     # start_urls = ["http://amazon.in/dp/B07TBG6H63"]
-    
+
     def start_requests(self):
         """
         This class method must return an iterable with the first Requests to crawl for this spider.
