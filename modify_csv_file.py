@@ -2,29 +2,30 @@ import pandas as pd
 import numpy as np
 from math import isnan
 
-file_path = 'amazon_product_scraping/data/OutputData/amazon_data.csv'
+# File path
+file_path = "amazon_product_scraping/data/OutputData/amazon_data.csv"
 
-def modify_csv_file(file):
+def modify_csv_file(file_path):
 	# Read csv file
-	df = pd.read_csv(file)
+	df = pd.read_csv(file_path)
 
 	# Convert type of columns (string) into list 
-	df['product_sale_price'] = [eval(i) for i in df['product_sale_price']]
-	df['product_fullfilled'] = [eval(i) for i in df['product_fullfilled']]
-	df['product_availability'] = [eval(i) for i in df['product_availability']]
-	icons = list(df['product_icons'])
+	df["product_sale_price"] = [eval(i) for i in df["product_sale_price"]]
+	df["product_fullfilled"] = [eval(i) for i in df["product_fullfilled"]]
+	df["product_availability"] = [eval(i) for i in df["product_availability"]]
+	icons = list(df["product_icons"])
 	icon = []
 	for i in icons:
 	    if type(i) == str:
 	        icon.append(eval(i))
 	    else:
 	        icon.append(i)
-	df['product_icons'] = icon
-	df['product_best_seller_rank'] = [eval(i) for i in df['product_best_seller_rank']]
-	df['product_subscription_discount'] = [eval(i) for i in df['product_subscription_discount']]
+	df["product_icons"] = icon
+	df["product_best_seller_rank"] = [eval(i) for i in df["product_best_seller_rank"]]
+	df["product_subscription_discount"] = [eval(i) for i in df["product_subscription_discount"]]
 
 	# Make a column "Price" with latest sale price
-	sale_price = [i[-1]['value'] for i in df['product_sale_price']]
+	sale_price = [i[-1]["value"] for i in df["product_sale_price"]]
 	sale_price = [str(i).replace(",", "") for i in sale_price]
 	price = []
 	for i in sale_price:
@@ -55,7 +56,7 @@ def modify_csv_file(file):
 	df["Range of Price"] = price_range
 
 	# Make a column "Best Seller Range" with latest BSR
-	bsr = [i[-1]['value'] for i in df['product_best_seller_rank']]
+	bsr = [i[-1]["value"] for i in df["product_best_seller_rank"]]
 	Bsr = []
 	for i in bsr:
 	    if i != "NA":
@@ -140,7 +141,7 @@ def modify_csv_file(file):
 	df["Reviews"] = [float(str(i).replace(",", "")) for i in df["Reviews"]]
 
 	# Make a column "Fulfilled" with latest fulfilled value for FBA or Non FBA
-	fulfilled = [i[-1]['value'] for i in df['product_fullfilled']]
+	fulfilled = [i[-1]["value"] for i in df["product_fullfilled"]]
 	fulfillment = []
 	for i in fulfilled:
 	    if i == "Fulfilled":
@@ -159,7 +160,7 @@ def modify_csv_file(file):
 	df["Refundable"] = refundable
 
 	# Make a column discount with latest discount value
-	discounts = [i[-1]['value'] for i in df['product_subscription_discount']]
+	discounts = [i[-1]["value"] for i in df["product_subscription_discount"]]
 	discount = []
 	for i in discounts:
 	    if i != "NA":
@@ -172,7 +173,7 @@ def modify_csv_file(file):
 	df["product_original_price"] = [str(i).replace(",", "") for i in df["product_original_price"]]
 
 	# Make a column "Original Price" with float type
-	original_price = list(df['product_original_price'])
+	original_price = list(df["product_original_price"])
 	mrp = []
 	for i in original_price:
 	    if type(i) == str:
@@ -186,8 +187,8 @@ def modify_csv_file(file):
 	for i in df["product_sale_price"]:
 	    l = []
 	    for j in i:
-	        if j['value'] != "NA":
-	            l.append(float(j['value'].replace(",", "")))
+	        if j["value"] != "NA":
+	            l.append(float(j["value"].replace(",", "")))
 	        else:
 	            l.append(np.nan)
 	    price_trend.append(l)
@@ -240,8 +241,8 @@ def modify_csv_file(file):
 	df["Discount"] = dis
 
 	# Modify brand
-	name = list(df['product_name'])
-	brand = list(df['product_brand'])
+	name = list(df["product_name"])
+	brand = list(df["product_brand"])
 	Brand = []
 	for i in range(0, len(name)):
 	    if type(brand[i]) != str:

@@ -187,9 +187,9 @@ class MongoDBPipeline:
                 index=False,
             )
 
-            # df1 = pd.read_csv("amazon_product_scraping/data/InputData/amazon_product_data.csv")
-            # combined = df1.append(df)
-            # with open('amazon_product_scraping/data/InputData/amazon_product_data.csv', 'w', encoding='utf-8', newline="") as file:
-            #     combined.to_csv(file, index=False)
+            df1 = pd.read_csv("amazon_product_scraping/data/InputData/amazon_product_data.csv")
+            combined = df1.append(df)
+            with open('amazon_product_scraping/data/InputData/amazon_product_data.csv', 'w', encoding='utf-8', newline="") as file:
+                combined.to_csv(file, index=False)
 
             return item
