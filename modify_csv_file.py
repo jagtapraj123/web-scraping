@@ -233,6 +233,8 @@ def modify_csv_file(file_path):
 	            dis.append(d)
 	        elif isnan(i) and isnan(k):
 	            dis.append(j)
+	        else:
+	        	dis.append(j)
 	    else:
 	        if isnan(i) and isnan(k):
 	            dis.append(np.nan)
