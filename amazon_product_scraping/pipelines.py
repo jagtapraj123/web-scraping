@@ -29,6 +29,7 @@ class MongoDBPipeline:
     """
 
     collection_name = "product_data"
+    collection_name_comments = "product_comments"
 
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
@@ -199,4 +200,20 @@ class MongoDBPipeline:
             ) as file:
                 combined.to_csv(file, index=False)
 
+            return item
+
+        if spider.name == "AmazonCommentsSpider":
+            existing_item = self.db[self.collection_name_comments].find_one(
+                {"product_asin": item["product_asin"]}
+            )
+            for comment in item["product_comments"]:
+                self.db[self.collection_name_comments].find_one_and_update(
+                    {"product_asin": item["product_asin"]},
+                    {
+                        "$push": {
+                            "comments": comment,
+                        }
+                    },
+                    upsert=True,
+                )
             return item

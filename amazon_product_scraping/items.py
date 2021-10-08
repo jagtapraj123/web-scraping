@@ -33,3 +33,8 @@ class AmazonProductScrapingItem(scrapy.Item):
     links = scrapy.Field()
     asin = scrapy.Field()
     bsr = scrapy.Field()
+
+
+class AmazonProductCommentsItem(scrapy.Item):
+    product_asin = scrapy.Field()  # str of asin number
+    product_comments = scrapy.Field()  # list(map(str, dynamic))

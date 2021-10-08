@@ -724,3 +724,81 @@ class AmazonScrapingHelper:
             .getall()
         )
         return variations
+
+
+class AmazonCommentsScrapingHelper:
+    def get_comments(self, response):
+        """
+        Parameters
+        ----------
+        response : object
+            represents an HTTP response
+
+        Returns
+        -------
+        array
+            List of comments with metadata.
+        """
+
+        # XPaths for Reference
+        # root:
+        # //div[@class="a-section review aok-relative"]
+
+        # username:
+        # root + //span[@class="a-profile-name"]/text()
+        # root + div/div/div[1]/a/div[2]/span/text()
+
+        # ratings:
+        # root + div/div/div[2]/a[1]//span/text()
+
+        # title:
+        # root + div/div/div[2]/a[2]//span/text()
+
+        # date:
+        # root + div/div/span/text()
+
+        # Design:
+        # root + div/div/div[3]/a[1]/text()
+
+        # verified:
+        # root + div/div/div[3]/span//span/text()
+
+        # description:
+        # root + div/div/div[4]/span/span/text()
+
+        # helpful:
+        # root + div/div/div[7]/div/span[1]//span/text()
+
+        comments = []
+        comms = response.xpath('//div[@class="a-section review aok-relative"]')
+        for com in comms:
+            where = com.xpath("div/div/span/text()").extract_first()
+            where = where.split() if isinstance(where, str) else []
+            comments.append(
+                {
+                    "username": com.xpath(
+                        "div/div/div[1]/a/div[2]/span/text()"
+                    ).extract_first(),
+                    "rating": com.xpath(
+                        "div/div/div[2]/a[1]//span/text()"
+                    ).extract_first(),
+                    "title": com.xpath(
+                        "div/div/div[2]/a[2]//span/text()"
+                    ).extract_first(),
+                    "country": " ".join(
+                        where[where.index("in") + 1 : where.index("on")]
+                    ),
+                    "date": " ".join(where[where.index("on") + 1 :]),
+                    "design": com.xpath("div/div/div[3]/a[1]/text()").extract_first(),
+                    "verified": com.xpath(
+                        "div/div/div[3]/span//span/text()"
+                    ).extract_first(),
+                    "description": com.xpath(
+                        "div/div/div[4]/span/span/text()"
+                    ).extract_first(),
+                    "helpful": com.xpath(
+                        "div/div/div[7]/div/span[1]//span/text()"
+                    ).extract_first(),
+                }
+            )
+        return comments
