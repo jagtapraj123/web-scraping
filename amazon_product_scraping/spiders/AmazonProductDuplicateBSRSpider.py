@@ -23,7 +23,7 @@ class AmazonProductDuplicateBSRSpider(scrapy.Spider):
     handle_httpstatus_all = True
     name = "AmazonProductDuplicateBSRSpider"
     rotate_user_agent = True
-    allowed_domains = ["amazon.in"]
+    # allowed_domains = ["amazon.in"]
     start_urls = [
         "https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031",
         "https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2",
@@ -42,9 +42,9 @@ class AmazonProductDuplicateBSRSpider(scrapy.Spider):
             yield scrapy.Request(
                 url=url,
                 callback=self.parse,
-                meta={
-                    "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                },
+                # meta={
+                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
+                # },
             )
 
     def parse(self, response):
@@ -61,7 +61,8 @@ class AmazonProductDuplicateBSRSpider(scrapy.Spider):
         dicts
             extract the scraped data as dicts
         """
-
+        
+        print(response.url, response.status)
         items = AmazonProductScrapingItem()
         links_xpath = (
             response.xpath('//div[@id="zg-center-div"]')

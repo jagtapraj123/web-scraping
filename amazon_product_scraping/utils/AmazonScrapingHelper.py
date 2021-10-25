@@ -67,7 +67,7 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        array
+        dict
             object with current time and sale price of the amazon product
         """
 
@@ -82,14 +82,14 @@ class AmazonScrapingHelper:
             .replace("\xa0", "")
             .replace("\u20b9", "")
         )
-        sale_price = []
+        # sale_price = []
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         sale_price_dict = {}
         sale_price_dict["time"] = current_time
         sale_price_dict["value"] = sale_price_strip
-        sale_price.append(sale_price_dict)
-        return sale_price
+        # sale_price.append(sale_price_dict)
+        return sale_price_dict
 
     def get_offers(self, response):
         """
@@ -149,7 +149,7 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        str
+        dict
             fulfilled of the amazon product
         """
 
@@ -157,50 +157,50 @@ class AmazonScrapingHelper:
             fullfilled_xpath_text = response.xpath(
                 '//span[@class="a-icon-text-fba"]/text()'
             ).extract_first()
-            fullfilled = []
+            # fullfilled = []
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             fullfilled_dict = {}
             fullfilled_dict["time"] = current_time
             fullfilled_dict["value"] = fullfilled_xpath_text
-            fullfilled.append(fullfilled_dict)
-            return fullfilled
+            # fullfilled.append(fullfilled_dict)
+            return fullfilled_dict
 
         elif (
             "Fulfilled by Amazon"
-            in response.xpath('//div[@id="merchant-info"]//a/text()').extract()
+            in (response.xpath('//div[@id="merchant-info"]//a/text()').extract() or "NA")
         ):
-            fullfilled = []
+            # fullfilled = []
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             fullfilled_dict = {}
             fullfilled_dict["time"] = current_time
             fullfilled_dict["value"] = "Fulfilled"
-            fullfilled.append(fullfilled_dict)
-            return fullfilled
+            # fullfilled.append(fullfilled_dict)
+            return fullfilled_dict
 
         elif (
             "fulfilled"
-            in response.xpath('//div[@id="merchant-info"]/text()').extract_first()
+            in (response.xpath('//div[@id="merchant-info"]/text()').extract_first() or "NA")
         ):
-            fullfilled = []
+            # fullfilled = []
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             fullfilled_dict = {}
             fullfilled_dict["time"] = current_time
             fullfilled_dict["value"] = "Fulfilled"
-            fullfilled.append(fullfilled_dict)
-            return fullfilled
+            # fullfilled.append(fullfilled_dict)
+            return fullfilled_dict
 
         else:
-            fullfilled = []
+            # fullfilled = []
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             fullfilled_dict = {}
             fullfilled_dict["time"] = current_time
             fullfilled_dict["value"] = "NA"
-            fullfilled.append(fullfilled_dict)
-            return fullfilled
+            # fullfilled.append(fullfilled_dict)
+            return fullfilled_dict
 
     def get_rating(self, response):
         """
@@ -211,12 +211,17 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        str
+        dict
             rating of the amazon product
         """
 
         rating = response.xpath('//*[@id="acrPopover"]/@title').extract_first() or "NA"
-        return rating
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        rating_dict = {}
+        rating_dict["time"] = current_time
+        rating_dict["value"] = rating
+        return rating_dict
 
     def get_total_reviews(self, response):
         """
@@ -227,7 +232,7 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        str
+        dict
             total reviews of the amazon product
         """
 
@@ -235,7 +240,12 @@ class AmazonScrapingHelper:
             response.xpath('//*[@id="acrCustomerReviewText"]/text()').extract_first()
             or "NA"
         )
-        return total_reviews
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        total_reviews_dict = {}
+        total_reviews_dict["time"] = current_time
+        total_reviews_dict["value"] = total_reviews
+        return total_reviews_dict
 
     def get_availability(self, response):
         """
@@ -246,7 +256,7 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        str
+        dict
             availability of the amazon product
         """
 
@@ -257,14 +267,14 @@ class AmazonScrapingHelper:
             ("".join(availability_xpath_text).strip()).replace("\n", "")
         ).split(".")[0]
 
-        availability = []
+        # availability = []
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         availability_dict = {}
         availability_dict["time"] = current_time
         availability_dict["value"] = availability_strip
-        availability.append(availability_dict)
-        return availability
+        # availability.append(availability_dict)
+        return availability_dict
 
     def get_category(self, response):
         """
@@ -315,7 +325,7 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        array
+        dict
             object with current time and best seller rank of the amazon product
         """
 
@@ -354,34 +364,34 @@ class AmazonScrapingHelper:
                     seller_rank_list.append(i)
                     seller_rank_list.append(j)
                 seller_rank = " ".join(seller_rank_list)
-                best_seller_rank = []
+                # best_seller_rank = []
                 now = datetime.now()
                 current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 best_seller_rank_dict = {}
                 best_seller_rank_dict["time"] = current_time
                 best_seller_rank_dict["value"] = seller_rank
-                best_seller_rank.append(best_seller_rank_dict)
-                return best_seller_rank
+                # best_seller_rank.append(best_seller_rank_dict)
+                return best_seller_rank_dict
             else:
                 seller_rank = "NA"
-                best_seller_rank = []
+                # best_seller_rank = []
                 now = datetime.now()
                 current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 best_seller_rank_dict = {}
                 best_seller_rank_dict["time"] = current_time
                 best_seller_rank_dict["value"] = seller_rank
-                best_seller_rank.append(best_seller_rank_dict)
-                return best_seller_rank
+                # best_seller_rank.append(best_seller_rank_dict)
+                return best_seller_rank_dict
         else:
             seller_rank = "NA"
-            best_seller_rank = []
+            # best_seller_rank = []
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             best_seller_rank_dict = {}
             best_seller_rank_dict["time"] = current_time
             best_seller_rank_dict["value"] = seller_rank
-            best_seller_rank.append(best_seller_rank_dict)
-            return best_seller_rank
+            # best_seller_rank.append(best_seller_rank_dict)
+            return best_seller_rank_dict
 
     def get_product_details_1(self, response):
         """
@@ -420,8 +430,8 @@ class AmazonScrapingHelper:
             while i < len(product_details):
                 details[product_details[i].replace(":", "")] = product_details[i + 1]
                 i += 2
-            if self.get_best_seller_rank_1(response)[0]["value"] != "NA":
-                details["Best Sellers Rank"] = self.get_best_seller_rank_1(response)[0][
+            if self.get_best_seller_rank_1(response)["value"] != "NA":
+                details["Best Sellers Rank"] = self.get_best_seller_rank_1(response)[
                     "value"
                 ]
             if (
@@ -429,7 +439,7 @@ class AmazonScrapingHelper:
                 and self.get_total_reviews(response) != "NA"
             ):
                 details["Customer Reviews"] = " ".join(
-                    [self.get_rating(response), self.get_total_reviews(response)]
+                    [self.get_rating(response)["value"], self.get_total_reviews(response)["value"]]
                 )
             return details
 
@@ -444,7 +454,7 @@ class AmazonScrapingHelper:
 
         Returns
         -------
-        array
+        dict
             object with current time and best seller rank of the amazon product
         """
 
@@ -479,34 +489,34 @@ class AmazonScrapingHelper:
                     seller_rank_list.append(i)
                     seller_rank_list.append(j)
                 seller_rank = " ".join(seller_rank_list)
-                best_seller_rank = []
+                # best_seller_rank = []
                 now = datetime.now()
                 current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 best_seller_rank_dict = {}
                 best_seller_rank_dict["time"] = current_time
                 best_seller_rank_dict["value"] = seller_rank
-                best_seller_rank.append(best_seller_rank_dict)
-                return best_seller_rank
+                # best_seller_rank.append(best_seller_rank_dict)
+                return best_seller_rank_dict
             else:
                 seller_rank = "NA"
-                best_seller_rank = []
+                # best_seller_rank = []
                 now = datetime.now()
                 current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 best_seller_rank_dict = {}
                 best_seller_rank_dict["time"] = current_time
                 best_seller_rank_dict["value"] = seller_rank
-                best_seller_rank.append(best_seller_rank_dict)
-                return best_seller_rank
+                # best_seller_rank.append(best_seller_rank_dict)
+                return best_seller_rank_dict
         else:
             seller_rank = "NA"
-            best_seller_rank = []
+            # best_seller_rank = []
             now = datetime.now()
             current_time = now.strftime("%Y-%m-%d %H:%M:%S")
             best_seller_rank_dict = {}
             best_seller_rank_dict["time"] = current_time
             best_seller_rank_dict["value"] = seller_rank
-            best_seller_rank.append(best_seller_rank_dict)
-            return best_seller_rank
+            # best_seller_rank.append(best_seller_rank_dict)
+            return best_seller_rank_dict
 
     def get_product_details_2(self, response):
         """
@@ -572,12 +582,12 @@ class AmazonScrapingHelper:
 
         if "Customer Reviews" in additional_information_strip_left_side:
             product_details["Customer Reviews"] = " ".join(
-                [self.get_rating(response), self.get_total_reviews(response)]
+                [self.get_rating(response)["value"], self.get_total_reviews(response)["value"]]
             )
         if "Best Sellers Rank" in additional_information_strip_left_side:
             product_details["Best Sellers Rank"] = self.get_best_seller_rank_2(
                 response
-            )[0]["value"]
+            )["value"]
 
         return product_details
 
@@ -686,22 +696,22 @@ class AmazonScrapingHelper:
                     (subscription_discount_xpath_text.strip()).split("(")[1]
                 ).split(")")[0]
 
-                subscription_discount = []
+                # subscription_discount = []
                 now = datetime.now()
                 current_time = now.strftime("%Y-%m-%d %H:%M:%S")
                 subscription_discount_dict = {}
                 subscription_discount_dict["time"] = current_time
                 subscription_discount_dict["value"] = subscription_discount_strip
-                subscription_discount.append(subscription_discount_dict)
-                return subscription_discount
-        subscription_discount = []
+                # subscription_discount.append(subscription_discount_dict)
+                return subscription_discount_dict
+        # subscription_discount = []
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         subscription_discount_dict = {}
         subscription_discount_dict["time"] = current_time
         subscription_discount_dict["value"] = "NA"
-        subscription_discount.append(subscription_discount_dict)
-        return subscription_discount
+        # subscription_discount.append(subscription_discount_dict)
+        return subscription_discount_dict
 
     def get_variations(self, response):
         """
@@ -725,6 +735,21 @@ class AmazonScrapingHelper:
         )
         return variations
 
+    # def get_featurewise_rating(self, response):
+    #     """
+    #     Parameters
+    #     ----------
+    #     response : object
+    #         represents an HTTP response
+
+    #     Returns
+    #     -------
+    #     array
+    #         variations of the amazon product
+    #     """
+
+    #     response.xpath('//*[@id="cr-summarization-attributes-list"]')
+    #     # //*[@id="cr-summarization-attribute-attr-scent"]
 
 class AmazonCommentsScrapingHelper:
     def get_comments(self, response):
@@ -788,7 +813,7 @@ class AmazonCommentsScrapingHelper:
                     "country": " ".join(
                         where[where.index("in") + 1 : where.index("on")]
                     ),
-                    "date": " ".join(where[where.index("on") + 1 :]),
+                    "date": datetime.strptime(" ".join(where[where.index("on") + 1 :]), "%d %B %Y"),
                     "design": com.xpath("div/div/div[3]/a[1]/text()").extract_first(),
                     "verified": com.xpath(
                         "div/div/div[3]/span//span/text()"
@@ -801,4 +826,5 @@ class AmazonCommentsScrapingHelper:
                     ).extract_first(),
                 }
             )
+        # print(comments)
         return comments

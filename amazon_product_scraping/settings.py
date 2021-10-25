@@ -13,11 +13,11 @@ SPIDER_MODULES = ["amazon_product_scraping.spiders"]
 NEWSPIDER_MODULE = "amazon_product_scraping.spiders"
 
 ITEM_PIPELINES = {
-    "amazon_product_scraping.pipelines.MongoDBPipeline": 300,
+    # "amazon_product_scraping.pipelines.MongoDBPipeline": 300,
 }
 
 MONGO_URI = "mongodb://localhost:27017"
-MONGO_DATABASE = "amazon_product_data_scraping"
+MONGO_DATABASE = "amazon_marketplace_scraping"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -30,7 +30,8 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 # DOWNLOAD_TIMEOUT = 540
-DOWNLOAD_DELAY = 5  # 3
+# DOWNLOAD_DELAY = 5  # 3
+CONCURRENT_REQUESTS = 1
 # DEPTH_LIMIT = 10
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 2 # 16
@@ -60,11 +61,14 @@ DOWNLOAD_DELAY = 5  # 3
 #    'amazon_product_scraping.middlewares.AmazonProductScrapingDownloaderMiddleware': 543,
 # }
 
+WEBSCRAPINGAPI_API_KEY = 'QMcxu7BiR8ps14ZaG2UJuVVRw6saaXSc'
+
 DOWNLOADER_MIDDLEWARES = {
     "scrapy.downloadermiddlewares.useragent.UserAgentMiddleware": None,
     "scrapy.downloadermiddlewares.retry.RetryMiddleware": None,
     "scrapy_fake_useragent.middleware.RandomUserAgentMiddleware": 400,
     "scrapy_fake_useragent.middleware.RetryUserAgentMiddleware": 401,
+    'webscrapingapi_scrapy_sdk.WebScrapingApiMiddleware': 543,
 }
 
 

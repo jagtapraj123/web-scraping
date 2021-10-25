@@ -1,18 +1,20 @@
 import scrapy
 import json
-from amazon_product_scraping.items import AmazonProductScrapingItem
+from amazon_product_scraping.items import AmazonProductDailyMovementItem
 from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonScrapingHelper
 from amazon_product_scraping.utils.FileHelper import FileHelper
 import logging
 import pandas as pd
 from scrapy import signals
+from webscrapingapi_scrapy_sdk import WebScrapingApiSpider, WebScrapingApiRequest
+from functools import partial
 
 logger = logging.getLogger("scraper")
 FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
 logging.basicConfig(format=FORMAT)
 
 
-class AmazonProductSalePriceBSRSpider(scrapy.Spider):
+class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
     """
     A class for scrapy spider.
 
@@ -32,11 +34,17 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
     handle_httpstatus_all = True
     name = "AmazonProductSalePriceBSRSpider"
     rotate_user_agent = True
-    allowed_domains = ["amazon.in"]
-    with open("amazon_product_scraping/configuration_file/config.json") as file:
-        input_data = json.load(file)
-    start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
+    # allowed_domains = ["amazon.in"]
+    # with open("amazon_product_scraping/configuration_file/config.json") as file:
+    #     input_data = json.load(file)
+    # start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
     # start_urls = ["http://amazon.in/dp/B08K3HQ4M4"]
+
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'amazon_product_scraping.pipelines.AmazonProductDailyMovementToMongoPipeline': 300
+        }
+    }
 
     def start_requests(self):
         """
@@ -45,20 +53,20 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
         """
 
-        urls = self.start_urls
-
-        for url in urls:
-            yield scrapy.Request(
+        for url in self.urls:
+            yield WebScrapingApiRequest(
                 url=url,
-                callback=self.parse,
-                meta={
-                    "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                },
+                callback=partial(self.parse, url)
+                # meta={
+                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
+                # },
             )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, cold_run, failed_urls, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.failed_urls = []
+        self.failed_urls = failed_urls
+        self.cold_run = cold_run
+        self.urls = []
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -86,7 +94,7 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
         crawler.signals.connect(spider.handle_spider_closed, signals.spider_closed)
         return spider
 
-    def parse(self, response):
+    def parse(self, url, response):
         """
         A class method used to parse the response for each request, extract scraped data as dicts and save failed urls in a csv file.
 
@@ -106,97 +114,120 @@ class AmazonProductSalePriceBSRSpider(scrapy.Spider):
             extract the scraped data as dicts
         """
 
-        # filename = response.url.split("/")[-1] + ".html"
+        print(response.url, response.status)
+        # filename = url.split("/")[-1] + ".html"
         # with open(filename, "wb") as f:
         #     f.write(response.body)
 
-        items = AmazonProductScrapingItem()
+        if response.status != 200:
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
+
+        items = AmazonProductDailyMovementItem()
         helper = AmazonScrapingHelper()
 
-        try:
-            title = helper.get_title(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            title = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+        # try:
+        #     title = helper.get_title(response)
+        # except Exception:
+        #     logging.error("Exception occurred", exc_info=True)
+        #     title = "NA"
+        #     if url not in self.failed_urls:
+        #         self.failed_urls.append(url)
 
         try:
             sale_price = helper.get_sale_price(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             sale_price = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
 
         try:
             best_seller_rank = helper.get_best_seller_rank_1(response)
-            if best_seller_rank[0]["value"] == "NA":
+            if best_seller_rank["value"] == "NA":
                 best_seller_rank = helper.get_best_seller_rank_2(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             best_seller_rank = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
 
         try:
             asin = helper.get_asin(response)
-            if asin == "NA" and response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if asin == "NA" and url not in self.failed_urls:
+                self.failed_urls.append(url)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             asin = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
 
-        try:
-            product_details = helper.get_product_details_1(response)
-            if product_details == {}:
-                product_details = helper.get_product_details_2(response)
-            if product_details == {} and response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            product_details = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
-
+        # try:
+        #     product_details = helper.get_product_details_1(response)
+        #     if product_details == {}:
+        #         product_details = helper.get_product_details_2(response)
+        #     if product_details == {} and url not in self.failed_urls:
+        #         self.failed_urls.append(url)
+        # except Exception:
+        #     logging.error("Exception occurred", exc_info=True)
+        #     product_details = "NA"
+        #     if url not in self.failed_urls:
+        #         self.failed_urls.append(url)
+        print(url)
         try:
             fullfilled = helper.get_fullfilled(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             fullfilled = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
+
+        try:
+            rating = helper.get_rating(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            rating = "NA"
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
+
+        try:
+            total_reviews = helper.get_total_reviews(response)
+        except Exception:
+            logging.error("Exception occurred", exc_info=True)
+            total_reviews = "NA"
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
 
         try:
             availability = helper.get_availability(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             availability = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
 
         try:
             subscription_discount = helper.get_subscription_discount(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             subscription_discount = "NA"
-            if response.url not in self.failed_urls:
-                self.failed_urls.append(response.url)
+            if url not in self.failed_urls:
+                self.failed_urls.append(url)
 
-        dict = {"URL": self.failed_urls}
-        df = pd.DataFrame(dict)
-        df.to_csv(
-            "amazon_product_scraping/data/InputData/recurrent_saleprice_bsr_failed_urls.csv",
-            index=False,
-        )
+        # dict = {"URL": self.failed_urls}
+        # df = pd.DataFrame(dict)
+        # df.to_csv(
+        #     "amazon_product_scraping/data/InputData/recurrent_saleprice_bsr_failed_urls.csv",
+        #     index=False,
+        # )
 
-        items["product_name"] = title
+        # items["product_name"] = title
         items["product_sale_price"] = sale_price
+        items["product_rating"] = rating
+        items["product_total_reviews"] = total_reviews
         items["product_best_seller_rank"] = best_seller_rank
         items["product_asin"] = asin
-        items["product_details"] = product_details
+        # items["product_details"] = product_details
         items["product_fullfilled"] = fullfilled
         items["product_availability"] = availability
         items["product_subscription_discount"] = subscription_discount
