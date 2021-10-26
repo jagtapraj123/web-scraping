@@ -70,12 +70,11 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
                 #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
                 # },
             )
-
-    def __init__(self, cold_run, failed_urls, count=-1,  *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.failed_urls = failed_urls
-        self.count = count
-        self.cold_run = cold_run
+        self.failed_urls = kwargs['failed_urls']
+        self.cold_run = kwargs['cold_run']
+        self.count = kwargs['count']
         self.urls = []
 
     @classmethod

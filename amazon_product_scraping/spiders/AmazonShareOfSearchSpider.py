@@ -54,12 +54,12 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
                 # }
             )
 
-    def __init__(self, cold_run, failed_urls, keywords, pages, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.failed_urls = failed_urls
-        self.cold_run = cold_run
-        self.keywords = keywords
-        self.pages = pages
+        self.failed_urls = kwargs['failed_urls']
+        self.cold_run = kwargs['cold_run']
+        self.keywords = kwargs['keywords']
+        self.pages = kwargs['pages']
         self.urls = []
 
 

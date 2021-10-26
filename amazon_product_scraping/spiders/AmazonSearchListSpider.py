@@ -63,10 +63,10 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
                     # }
                 )
 
-    def __init__(self, cold_run, failed_urls, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.failed_urls = failed_urls
-        self.cold_run = cold_run
+        self.failed_urls = kwargs['failed_urls']
+        self.cold_run = kwargs['cold_run']
         # self.urls = [
         #     "http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote("https://www.amazon.in/s?k=shampoo&i=beauty&rh=n%3A1355016031%2Cp_89%3ABiotique%7CDove%7CHead+%26+Shoulders%7CL%27Oreal+Paris%7CTRESemme".encode('utf-8')))
         # ]

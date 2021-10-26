@@ -17,7 +17,7 @@ def run():
     failed_urls = []
     cold_run = True
     for _ in range(10):
-        yield process.crawl(AmazonTop100BSRSpider, cold_run, failed_urls)
+        yield process.crawl(AmazonTop100BSRSpider, cold_run=cold_run, failed_urls=failed_urls)
         cold_run = False
         if len(failed_urls) == 0:
             break
@@ -25,7 +25,7 @@ def run():
     failed_urls = []
     cold_run = True
     for _ in range(10):
-        yield process.crawl(AmazonSearchListSpider, cold_run, failed_urls)
+        yield process.crawl(AmazonSearchListSpider, cold_run=cold_run, failed_urls=failed_urls)
         cold_run = False
         if len(failed_urls) == 0:
             break
@@ -34,7 +34,7 @@ def run():
     failed_urls = []
     cold_run = True
     for _ in range(10):
-        yield process.crawl(AmazonProductInfoSpider, cold_run, failed_urls)
+        yield process.crawl(AmazonProductInfoSpider, cold_run=cold_run, failed_urls=failed_urls)
         cold_run = False
         if len(failed_urls) == 0:
             break
@@ -42,7 +42,7 @@ def run():
     failed_urls = []
     cold_run = True
     for _ in range(10):
-        yield process.crawl(AmazonProductSalePriceBSRSpider, cold_run, failed_urls)
+        yield process.crawl(AmazonProductSalePriceBSRSpider, cold_run=cold_run, failed_urls=failed_urls)
         cold_run = False
         if len(failed_urls) == 0:
             break
@@ -50,7 +50,7 @@ def run():
     failed_urls = []
     cold_run = True
     for _ in range(10):
-        yield process.crawl(AmazonProductCommentsSpider, cold_run, failed_urls, 50)
+        yield process.crawl(AmazonProductCommentsSpider, cold_run=cold_run, failed_urls=failed_urls, count=50)
         cold_run = False
         if len(failed_urls) == 0:
             break
@@ -58,7 +58,7 @@ def run():
     failed_urls = []
     cold_run = True
     for _ in range(10):
-        yield process.crawl(AmazonShareOfSearchSpider, cold_run, failed_urls, ["hairfall control shampoo", "Shampoo for smooth hair"], 5)
+        yield process.crawl(AmazonShareOfSearchSpider, cold_run=cold_run, failed_urls=failed_urls, keywords=["hairfall control shampoo", "Shampoo for smooth hair"], pages=5)
         cold_run = False
         if len(failed_urls) == 0:
             break

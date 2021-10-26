@@ -62,10 +62,10 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
                 # },
             )
 
-    def __init__(self, cold_run, failed_urls, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.failed_urls = failed_urls
-        self.cold_run = cold_run
+        self.failed_urls = kwargs['failed_urls']
+        self.cold_run = kwargs['cold_run']
         self.urls = []
 
     @classmethod
