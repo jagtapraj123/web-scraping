@@ -395,7 +395,9 @@ class NewListingProductURLToMongoPipeline:
         if spider.cold_run:
             pass
         else:
-            spider.urls = spider.failed_urls
+            spider.urls = spider.failed_urls.copy()
+            spider.failed_urls.clear()
+            print("New Listing URL Pipeline", type(spider.failed_urls))
 
         print("*******\nNew Listing URL Pipeline Started\n********")
 
