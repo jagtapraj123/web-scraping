@@ -155,11 +155,14 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         keyword = ' '.join(url.split('?k=')[1].split('&')[0].split('+'))
         page = int(url.split('&page=')[1].split('&')[0])-1
         rank = page*60
+        yield None
         for asin in asins:
             if asin != '':
                 rank += 1
+                url = 'https://www.amazon.in/dp/{}'.format(asin)
+                # print(url)
                 yield WebScrapingApiRequest(
-                    url = 'https://www.amazon.in/dp/{}'.format(asin),
+                    url = url,
                     callback=partial(self.parse_product_data, url, keyword, rank),
                     # meta={
                     #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
@@ -184,7 +187,8 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         # if response.status != 200:
         #     if url not in self.failed_urls:
                 # self.failed_urls.append(url)
-
+        print(response.url, response.status)
+        print(url)
         asin = url.split('/dp/')[1].split('/')[0]
         item = AmazonShareOfSearchItem()
         helper = AmazonScrapingHelper()
@@ -237,5 +241,5 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         item['product_sale_price'] = sale_price
         item['product_original_price'] = original_price
         item['product_fullfilled'] = fullfilled
-        print(item)
+        # print(item)
         yield item

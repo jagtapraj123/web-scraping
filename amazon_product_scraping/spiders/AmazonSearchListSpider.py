@@ -120,7 +120,7 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         for i in range(1, min(51, ceil(count/48))):
             yield WebScrapingApiRequest(
                 url = url + quote("?page={}".format(i).encode('utf-8')),
-                callback= partial(self.parse_product_list, url),
+                callback= partial(self.parse_product_list, url + quote("?page={}".format(i).encode('utf-8'))),
                 # meta={
                 #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
                 # }
