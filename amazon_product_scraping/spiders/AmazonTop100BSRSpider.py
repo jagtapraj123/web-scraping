@@ -59,6 +59,7 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
         super().__init__(*args, **kwargs)
         self.failed_urls = kwargs['failed_urls']
         self.cold_run = kwargs['cold_run']
+        self.success_counts = kwargs['success_counts']
         # self.urls = [
         #     "http://api.scrapeup.com/?api_key={}&url={}".format("0b0df76f8a0571637677d78f121444ed", quote("https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031".encode('utf-8'))),
         #     "http://api.scrapeup.com/?api_key={}&url={}".format("0b0df76f8a0571637677d78f121444ed", quote("https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2".encode('utf-8'))),

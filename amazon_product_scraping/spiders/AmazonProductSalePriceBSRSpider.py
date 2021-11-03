@@ -66,6 +66,7 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         super().__init__(*args, **kwargs)
         self.failed_urls = kwargs['failed_urls']
         self.cold_run = kwargs['cold_run']
+        self.success_counts = kwargs['success_counts']
         self.urls = []
 
     @classmethod

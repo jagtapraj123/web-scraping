@@ -60,6 +60,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         self.cold_run = kwargs['cold_run']
         self.keywords = kwargs['keywords']
         self.pages = kwargs['pages']
+        self.success_counts = kwargs['success_counts']
         self.urls = []
 
 

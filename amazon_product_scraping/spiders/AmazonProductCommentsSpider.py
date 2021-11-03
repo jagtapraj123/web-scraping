@@ -75,6 +75,7 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
         self.failed_urls = kwargs['failed_urls']
         self.cold_run = kwargs['cold_run']
         self.count = kwargs['count']
+        self.success_counts = kwargs['success_counts']
         self.urls = []
 
     @classmethod

@@ -347,6 +347,10 @@ class CommentsToMongoPipeline:
             # )
             # print("****ITEM:\n", item)
             print(len(item['product_comments']))
+            spider.success_counts['prods_checked'] += 1
+            spider.success_counts['prods_with_new_comms'] += 1 if len(item['product_comments']) > 0 else 0
+            spider.success_counts['new_comments'] += len(item['product_comments'])
+
             for comment in item["product_comments"]:
                 comment["date"] = comment["date"].strftime("%Y-%m-%d %H:%M:%S")
                 self.db[self.output_collection_name].find_one_and_update(
@@ -446,7 +450,9 @@ class NewListingProductURLToMongoPipeline:
                         },
                         upsert=True
                     )
-                # print("New Added: {}, Hit: {}".format(not_present, present))
+                print("New Added: {}, Hit: {}".format(not_present, present))
+                spider.success_counts['new'] += not_present
+                spider.success_counts['existing'] += present
         return item
 
 
@@ -523,16 +529,19 @@ class AmazonProductInfoToMongoPipeline:
             the spider which scraped the item
         """
         
-        if spider.name == "AmazonProductInfoSpider" and isinstance(item, AmazonProductInfoItem):
-            # existing_item = self.db[self.collection_name].find_one(
-            #     {"product_asin": item["product_asin"]}
-            # )
-            if (
-                item["product_details"] != {}
-                and item["product_asin"] != "NA"
-            ):
-                # print(item)
-                self.db[self.output_collection_name].insert_one(ItemAdapter(item).asdict())
+        if spider.name == "AmazonProductInfoSpider":
+            spider.success_counts['new'] += 1
+            if isinstance(item, AmazonProductInfoItem):
+                # existing_item = self.db[self.collection_name].find_one(
+                #     {"product_asin": item["product_asin"]}
+                # )
+                if (
+                    item["product_details"] != {}
+                    and item["product_asin"] != "NA"
+                ):
+                    # print(item)
+                    spider.success_counts['added'] += 1
+                    self.db[self.output_collection_name].insert_one(ItemAdapter(item).asdict())
         
         return item
 
@@ -606,36 +615,38 @@ class AmazonProductDailyMovementToMongoPipeline:
             the spider which scraped the item
         """
         
-        if spider.name == "AmazonProductSalePriceBSRSpider" and isinstance(item, AmazonProductDailyMovementItem):
-            existing_item = self.db[self.output_collection_name].find_one(
-                {"product_asin": item["product_asin"]}
-            )
-            if (
-                existing_item
-                and item["product_asin"] != "NA"
-            ):
-                # print("****ITEM:\n", item)
-                self.db[self.output_collection_name].find_one_and_update(
-                    {"product_asin": item["product_asin"]},
-                    {
-                        "$push": {
-                            "product_sale_price": item["product_sale_price"],
-                            "product_best_seller_rank": item[
-                                "product_best_seller_rank"
-                            ],
-                            "product_fullfilled": item["product_fullfilled"],
-                            "product_availability": item["product_availability"],
-                            "product_subscription_discount": item[
-                                "product_subscription_discount"
-                            ],
-                            "product_rating": item["product_rating"],
-                            "product_total_reviews" : item["product_total_reviews"],
-
-                        }
-                    },
-                    upsert=True,
+        if spider.name == "AmazonProductSalePriceBSRSpider":
+            spider.success_counts['new'] += 1
+            if isinstance(item, AmazonProductDailyMovementItem):
+                existing_item = self.db[self.output_collection_name].find_one(
+                    {"product_asin": item["product_asin"]}
                 )
-            return item
+                if (
+                    existing_item
+                    and item["product_asin"] != "NA"
+                ):
+                    spider.success_counts['added'] += 1
+                    # print("****ITEM:\n", item)
+                    self.db[self.output_collection_name].find_one_and_update(
+                        {"product_asin": item["product_asin"]},
+                        {
+                            "$push": {
+                                "product_sale_price": item["product_sale_price"],
+                                "product_best_seller_rank": item[
+                                    "product_best_seller_rank"
+                                ],
+                                "product_fullfilled": item["product_fullfilled"],
+                                "product_availability": item["product_availability"],
+                                "product_subscription_discount": item[
+                                    "product_subscription_discount"
+                                ],
+                                "product_rating": item["product_rating"],
+                                "product_total_reviews" : item["product_total_reviews"],
+
+                            }
+                        },
+                        upsert=True,
+                    )
         return item
 
 class ShareOfSearchPipeline:
@@ -707,13 +718,15 @@ class ShareOfSearchPipeline:
         spider : object
             the spider which scraped the item
         """
-        if isinstance(item, AmazonShareOfSearchItem):
-            if spider.name == "AmazonShareOfSearchSpider":
+        
+        if spider.name == "AmazonShareOfSearchSpider":
+            if isinstance(item, AmazonShareOfSearchItem):
                 # for product in item['products']:
                     # existing_item = self.db[self.collection_name].find_one(
                     #     {"product_asin": product["product_asin"]}
                     # )
                     # print("*****\nITEM:", item)
+                    spider.success_counts['added'] += 1
                     self.db[self.collection_name].find_one_and_update(
                         {
                             "time": self.time,
