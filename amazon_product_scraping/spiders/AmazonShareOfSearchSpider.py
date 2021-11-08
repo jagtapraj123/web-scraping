@@ -46,13 +46,22 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         """
 
         for url in self.urls:
-            yield WebScrapingApiRequest(
-                url=url,
-                callback=partial(self.parse_product_list, url)
-                # meta={
-                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                # }
-            )
+            if isinstance(url, str):
+                yield WebScrapingApiRequest(
+                    url=url,
+                    callback=partial(self.parse_product_list, url)
+                    # meta={
+                    #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
+                    # }
+                )
+            elif isinstance(url, list):
+                yield WebScrapingApiRequest(
+                    url=url[0],
+                    callback=partial(self.parse_product_data, url[0], url[1], url[2]),
+                    # meta={
+                    #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
+                    # }
+                )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,6 +70,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         self.keywords = kwargs['keywords']
         self.pages = kwargs['pages']
         self.success_counts = kwargs['success_counts']
+        self.time = kwargs['time']
         self.urls = []
 
 
@@ -157,6 +167,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         page = int(url.split('&page=')[1].split('&')[0])-1
         rank = page*60
         yield None
+        # print("for keyword {} found {} products".format(keyword, len(asins)))
         for asin in asins:
             if asin != '':
                 rank += 1
@@ -184,10 +195,21 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         dicts
             extract the scraped data as dicts
         """
+        fail = False
+        def add_to_failed():
+            fail = True
+            wrapper = [
+                url,
+                keyword,
+                rank
+            ]
+            if wrapper not in self.failed_urls:
+                self.failed_urls.append(wrapper)
 
-        # if response.status != 200:
-        #     if url not in self.failed_urls:
-                # self.failed_urls.append(url)
+        if response.status != 200:
+            add_to_failed()
+            # if url not in self.failed_urls:
+            #     self.failed_urls.append(url)
         print(response.url, response.status)
         print(url)
         asin = url.split('/dp/')[1].split('/')[0]
@@ -199,6 +221,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         except Exception:
             # logging.error("Exception occurred", exc_info=True)
             title = "NA"
+            add_to_failed()
             # if url not in self.failed_urls:
             #     self.failed_urls.append(url)
 
@@ -207,6 +230,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         except Exception:
             # logging.error("Exception occurred", exc_info=True)
             brand = "NA"
+            add_to_failed()
             # if url not in self.failed_urls:
             #     self.failed_urls.append(url)
 
@@ -215,6 +239,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         except Exception:
             # logging.error("Exception occurred", exc_info=True)
             sale_price = "NA"
+            add_to_failed()
             # if url not in self.failed_urls:
             #     self.failed_urls.append(url)
 
@@ -223,6 +248,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         except Exception:
             # logging.error("Exception occurred", exc_info=True)
             original_price = "NA"
+            add_to_failed()
             # if url not in self.failed_urls:
             #     self.failed_urls.append(url)
 
@@ -231,6 +257,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         except Exception:
             # logging.error("Exception occurred", exc_info=True)
             fullfilled = "NA"
+            add_to_failed()
             # if url not in self.failed_urls:
             #     self.failed_urls.append(url)
 
@@ -243,4 +270,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         item['product_original_price'] = original_price
         item['product_fullfilled'] = fullfilled
         # print(item)
-        yield item
+        if fail:
+            yield None
+        else:
+            yield item

@@ -31,7 +31,7 @@ ROBOTSTXT_OBEY = False
 # See also autothrottle settings and docs
 # DOWNLOAD_TIMEOUT = 540
 # DOWNLOAD_DELAY = 5  # 3
-CONCURRENT_REQUESTS = 1
+CONCURRENT_REQUESTS = 10
 # DEPTH_LIMIT = 10
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 2 # 16

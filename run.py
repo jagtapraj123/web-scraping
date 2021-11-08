@@ -15,10 +15,12 @@ process = CrawlerRunner(settings=settings)
 
 @defer.inlineCallbacks
 def run():
+    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open('run_summary.log', 'a') as f:
         f.write("\n********************\n")
-        f.write("Scraper started : {}\n\n".format(datetime.datetime.now()))
+        f.write("Scraper started : {}\n\n".format(time))
 
+    # Top 100 BSR Spider
     failed_urls = []
     cold_run = True
     total_success_counts = {
@@ -46,6 +48,7 @@ def run():
             f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
         f.write("\n")
 
+    # Search List Spider
     failed_urls = []
     cold_run = True
     total_success_counts = {
@@ -73,6 +76,7 @@ def run():
             f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
         f.write("\n")
 
+    # Product Info Spider
     # # process = CrawlerProcess(settings=settings)
     failed_urls = []
     cold_run = True
@@ -101,6 +105,7 @@ def run():
             f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
         f.write("\n")
     
+    # Product Sale Price BSR Spider
     failed_urls = []
     cold_run = True
     total_success_counts = {
@@ -128,6 +133,7 @@ def run():
             f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
         f.write("\n")
 
+    # Product Comments Spider
     failed_urls = []
     cold_run = True
     total_success_counts = {
@@ -158,6 +164,7 @@ def run():
             f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
         f.write("\n")
 
+    # Share of Search Spider
     failed_urls = []
     cold_run = True
     total_success_counts = {
@@ -167,7 +174,7 @@ def run():
         success_counts = {
             'added': 0
         }
-        yield process.crawl(AmazonShareOfSearchSpider, cold_run=cold_run, failed_urls=failed_urls, keywords=["shampoo for dry and frizzy hair", "shampoo and conditioner combo", "shampoo and conditioner", "shampoo 1 litre", "dandruff shampoo", "hair fall control shampoo", "shampoo for oily scalp", "shampoo for dry hair", "shampoo for coloured hair", "shampoo for thin hair", "shampoo for men", "shampoo for women"], pages=5, success_counts=success_counts)
+        yield process.crawl(AmazonShareOfSearchSpider, time=time, cold_run=cold_run, failed_urls=failed_urls, keywords=["shampoo for dry and frizzy hair", "shampoo and conditioner combo", "shampoo and conditioner", "shampoo 1 litre", "dandruff shampoo", "hair fall control shampoo", "shampoo for oily scalp", "shampoo for dry hair", "shampoo for coloured hair", "shampoo for thin hair", "shampoo for men", "shampoo for women"], pages=5, success_counts=success_counts)
         cold_run = False
         total_success_counts['added'] += success_counts['added']
         with open('run_summary.log', 'a') as f:

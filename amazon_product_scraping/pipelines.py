@@ -656,7 +656,7 @@ class ShareOfSearchPipeline:
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
-        self.time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # self.time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -729,7 +729,7 @@ class ShareOfSearchPipeline:
                     spider.success_counts['added'] += 1
                     self.db[self.collection_name].find_one_and_update(
                         {
-                            "time": self.time,
+                            "time": spider.time,
                             "keyword": item['keyword']
                         },
                         {
