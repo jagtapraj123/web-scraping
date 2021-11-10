@@ -133,37 +133,6 @@ def run():
             f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
         f.write("\n")
 
-    # Product Comments Spider
-    failed_urls = []
-    cold_run = True
-    total_success_counts = {
-        'prods_checked': 0,
-        'prods_with_new_comms': 0,
-        'new_comments': 0
-    }
-    for i in range(10):
-        success_counts = {
-            'prods_checked': 0,
-            'prods_with_new_comms': 0,
-            'new_comments': 0
-        }
-        yield process.crawl(AmazonProductCommentsSpider, cold_run=cold_run, failed_urls=failed_urls, count=-1, success_counts=success_counts)
-        cold_run = False
-        total_success_counts['prods_checked'] += success_counts['prods_checked']
-        total_success_counts['prods_with_new_comms'] += success_counts['prods_with_new_comms']
-        total_success_counts['new_comments'] += success_counts['new_comments']
-        with open('run_summary.log', 'a') as f:
-            f.write("Run {}:\nChecked {} products in AmazonProductCommentsSpider\n\t- {} products had new comments\n\t- {} comments successfully added to DB\n\n".format(i+1, success_counts['prods_checked'], success_counts['prods_with_new_comms'], success_counts['new_comments']))
-        if len(failed_urls) == 0:
-            break
-
-    with open('run_summary.log', 'a') as f:
-        f.write("AmazonProductCommentsSpider Summary:\nChecked {} products in AmazonProductCommentsSpider\n\t- {} products had new comments\n\t- {} comments successfully added to DB\n\n".format(total_success_counts['prods_checked'], total_success_counts['prods_with_new_comms'], total_success_counts['new_comments']))
-        f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
-        for j in range(len(failed_urls)):
-            f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
-        f.write("\n")
-
     # Share of Search Spider
     failed_urls = []
     cold_run = True
@@ -174,7 +143,7 @@ def run():
         success_counts = {
             'added': 0
         }
-        yield process.crawl(AmazonShareOfSearchSpider, time=time, cold_run=cold_run, failed_urls=failed_urls, keywords=["shampoo for dry and frizzy hair", "shampoo and conditioner combo", "shampoo and conditioner", "shampoo 1 litre", "dandruff shampoo", "hair fall control shampoo", "shampoo for oily scalp", "shampoo for dry hair", "shampoo for coloured hair", "shampoo for thin hair", "shampoo for men", "shampoo for women"], pages=5, success_counts=success_counts)
+        yield process.crawl(AmazonShareOfSearchSpider, time=time, cold_run=cold_run, failed_urls=failed_urls, keywords=["shampoo for dry and frizzy hair", "shampoo and conditioner combo", "shampoo and conditioner", "shampoo 1 litre", "dandruff shampoo", "hair fall control shampoo", "shampoo for oily scalp", "shampoo for dry hair", "shampoo for coloured hair", "shampoo for thin hair", "shampoo for men", "shampoo for women"], pages=2, success_counts=success_counts)
         cold_run = False
         total_success_counts['added'] += success_counts['added']
         with open('run_summary.log', 'a') as f:
