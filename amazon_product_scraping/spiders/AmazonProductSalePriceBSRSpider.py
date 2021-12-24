@@ -24,13 +24,15 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         True
     name : str
         spider name which identify the spider
-    rotate_user_agent : Bollean
+    rotate_user_agent : Boolean
         True
     allowed_domains : list
         contains base-URLs for the allowed domains for the spider to crawl
     start_urls : list
-        a list of URLs for the spider to start crawling from"""
+        a list of URLs for the spider to start crawling from
+    """
 
+    debug = False
     handle_httpstatus_all = True
     name = "AmazonProductSalePriceBSRSpider"
     rotate_user_agent = True
@@ -53,14 +55,20 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
         """
 
-        for url in self.urls:
-            yield WebScrapingApiRequest(
-                url=url,
-                callback=partial(self.parse, url)
-                # meta={
-                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                # },
-            )
+        if self.cold_run:
+            for url in self.urls:
+                self.add_to_failed('movement', {'url': url})
+                yield WebScrapingApiRequest(
+                    url = url,
+                    callback=partial(self.parse_movement, {'url': url})
+                )
+        else:
+            for func, params in self.failed_urls:
+                if func == 'movement':
+                    yield WebScrapingApiRequest(
+                        url = params['url'],
+                        callback=partial(self.parse_movement, params)
+                    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -68,6 +76,16 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         self.cold_run = kwargs['cold_run']
         self.success_counts = kwargs['success_counts']
         self.urls = []
+
+    def add_to_failed(self, parser_func, params):
+        wrapper = [parser_func, params]
+        if wrapper not in self.failed_urls:
+            self.failed_urls.append(wrapper)
+
+    def remove_from_failed(self, parser_func, params):
+        wrapper = [parser_func, params]
+        if wrapper in self.failed_urls:
+            self.failed_urls.remove(wrapper)
 
     @classmethod
     def from_crawler(cls, crawler, *args, **kwargs):
@@ -95,7 +113,7 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         crawler.signals.connect(spider.handle_spider_closed, signals.spider_closed)
         return spider
 
-    def parse(self, url, response):
+    def parse_movement(self, params, response):
         """
         A class method used to parse the response for each request, extract scraped data as dicts and save failed urls in a csv file.
 
@@ -116,15 +134,14 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         """
 
         print(response.url, response.status)
-        # filename = url.split("/")[-1] + ".html"
-        # with open(filename, "wb") as f:
-        #     f.write(response.body)
+        print(params)
+
+        failed = False
 
         if response.status != 200:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
-        items = AmazonProductDailyMovementItem()
+        item = AmazonProductDailyMovementItem()
         helper = AmazonScrapingHelper()
 
         # try:
@@ -132,16 +149,14 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         # except Exception:
         #     logging.error("Exception occurred", exc_info=True)
         #     title = "NA"
-        #     if url not in self.failed_urls:
-        #         self.failed_urls.append(url)
+        #     failed = True
 
         try:
             sale_price = helper.get_sale_price(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             sale_price = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         try:
             best_seller_rank = helper.get_best_seller_rank_1(response)
@@ -150,89 +165,84 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             best_seller_rank = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         try:
-            asin = helper.get_asin(response)
-            if asin == "NA" and url not in self.failed_urls:
-                self.failed_urls.append(url)
+            # asin = helper.get_asin(response)
+            asin = params['url'].split('/dp/')[1]
+            if asin == "NA":
+                failed = True
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             asin = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         # try:
         #     product_details = helper.get_product_details_1(response)
         #     if product_details == {}:
         #         product_details = helper.get_product_details_2(response)
-        #     if product_details == {} and url not in self.failed_urls:
-        #         self.failed_urls.append(url)
+        #     if product_details == {} and self.cold_run:
+        #         failed = True
         # except Exception:
         #     logging.error("Exception occurred", exc_info=True)
         #     product_details = "NA"
-        #     if url not in self.failed_urls:
-        #         self.failed_urls.append(url)
-        print(url)
+        #     failed = True
+        
         try:
             fullfilled = helper.get_fullfilled(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             fullfilled = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         try:
             rating = helper.get_rating(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             rating = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         try:
             total_reviews = helper.get_total_reviews(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             total_reviews = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         try:
             availability = helper.get_availability(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             availability = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         try:
             subscription_discount = helper.get_subscription_discount(response)
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             subscription_discount = "NA"
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
-        # dict = {"URL": self.failed_urls}
-        # df = pd.DataFrame(dict)
-        # df.to_csv(
-        #     "amazon_product_scraping/data/InputData/recurrent_saleprice_bsr_failed_urls.csv",
-        #     index=False,
-        # )
-
-        # items["product_name"] = title
-        items["product_sale_price"] = sale_price
-        items["product_rating"] = rating
-        items["product_total_reviews"] = total_reviews
-        items["product_best_seller_rank"] = best_seller_rank
-        items["product_asin"] = asin
-        # items["product_details"] = product_details
-        items["product_fullfilled"] = fullfilled
-        items["product_availability"] = availability
-        items["product_subscription_discount"] = subscription_discount
-        yield items
+        # item["product_name"] = title
+        item["product_sale_price"] = sale_price
+        item["product_rating"] = rating
+        item["product_total_reviews"] = total_reviews
+        item["product_best_seller_rank"] = best_seller_rank
+        item["product_asin"] = asin
+        # item["product_details"] = product_details
+        item["product_fullfilled"] = fullfilled
+        item["product_availability"] = availability
+        item["product_subscription_discount"] = subscription_discount
+        
+        if failed:
+            if self.debug:
+                print("**DEBUG:**/n {}".format(item))
+                with open('fails/{}.html'.format(asin), 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+            yield None
+        else:
+            self.remove_from_failed('movement', params)
+            yield item
 
     def handle_spider_closed(self, reason):
         """

@@ -85,3 +85,4 @@ class AmazonShareOfSearchItem(scrapy.Item):
     product_original_price = scrapy.Field()
     product_sale_price = scrapy.Field()
     product_fullfilled = scrapy.Field()
+    sponsored = scrapy.Field()

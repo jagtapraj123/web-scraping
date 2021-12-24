@@ -16,7 +16,7 @@ from csv import writer
 import math
 
 from scrapy import crawler
-from amazon_product_scraping.items import AmazonSearchCount, AmazonSearchProductList, AmazonProductInfoItem, AmazonProductDailyMovementItem, AmazonShareOfSearchItem
+from amazon_product_scraping.items import AmazonSearchCount, AmazonSearchProductList, AmazonProductInfoItem, AmazonProductDailyMovementItem, AmazonShareOfSearchItem, AmazonProductCommentsItem
 
 
 # class MongoDBPipeline:
@@ -310,9 +310,9 @@ class CommentsToMongoPipeline:
         #             spider.urls.append("https://www.amazon.in/Himalaya-Herbals-Anti-Shampoo-400ml/product-reviews/{}/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&filterByStar=two_star&pageNumber={}".format(asin, i))
         #             spider.urls.append("https://www.amazon.in/Himalaya-Herbals-Anti-Shampoo-400ml/product-reviews/{}/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&filterByStar=one_star&pageNumber={}".format(asin, i))
         #                 
-        else:
-            spider.urls = spider.failed_urls.copy()
-            spider.failed_urls.clear()
+        # else:
+        #     spider.urls = spider.failed_urls.copy()
+        #     spider.failed_urls.clear()
 
         # print("******\n", spider.urls)
         
@@ -341,7 +341,7 @@ class CommentsToMongoPipeline:
         spider : object
             the spider which scraped the item
         """
-        if spider.name == "AmazonProductCommentsSpider":
+        if spider.name == "AmazonProductCommentsSpider" and isinstance(item, AmazonProductCommentsItem):
             # existing_item = self.db[self.collection_name_comments].find_one(
             #     {"product_asin": item["product_asin"]}
             # )
@@ -396,11 +396,11 @@ class NewListingProductURLToMongoPipeline:
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
         # TODO Add URL selecting code
-        if spider.cold_run:
-            pass
-        else:
-            spider.urls = spider.failed_urls.copy()
-            spider.failed_urls.clear()
+        # if spider.cold_run:
+        #     pass
+        # else:
+        #     spider.urls = spider.failed_urls.copy()
+        #     spider.failed_urls.clear()
 
         print("*******\nNew Listing URL Pipeline Started\n********")
 
@@ -427,8 +427,8 @@ class NewListingProductURLToMongoPipeline:
         spider : object
             the spider which scraped the item
         """
-        if isinstance(item, AmazonSearchProductList):
-            if spider.name == "AmazonTop100BSRSpider" or spider.name == "AmazonSearchListSpider":
+        if spider.name == "AmazonTop100BSRSpider" or spider.name == "AmazonSearchListSpider":
+            if isinstance(item, AmazonSearchProductList):
                 present = 0
                 not_present = 0
                 for product in item['products']:
@@ -454,7 +454,6 @@ class NewListingProductURLToMongoPipeline:
                 spider.success_counts['new'] += not_present
                 spider.success_counts['existing'] += present
         return item
-
 
 class AmazonProductInfoToMongoPipeline:
     
@@ -493,16 +492,16 @@ class AmazonProductInfoToMongoPipeline:
             present_prods = set(map(lambda x: x['product_asin'], list(self.db[self.output_collection_name].find({}, {"_id": 0, "product_asin": 1}))))
             # urls = {}
             # spider.urls = []
+            # print(present_prods)
+            # print(len(present_prods))
+            print("*****\nTo Add:")
             for prod in input_prods:
                 if prod['product_asin'] not in present_prods:
+                    print(prod['product_asin'])
                     spider.urls.append(prod['product_url'])
                     # spider.urls.append("http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote(prod['product_url'].encode('utf-8'))))
-        else:
-            spider.urls = spider.failed_urls.copy()
-            spider.failed_urls.clear()
+            print("END\n*****")
 
-        print("******\n", spider.urls)
-        
         print("*******\nProduct Info Pipeline Started\n********")
 
     def close_spider(self, spider):
@@ -535,13 +534,9 @@ class AmazonProductInfoToMongoPipeline:
                 # existing_item = self.db[self.collection_name].find_one(
                 #     {"product_asin": item["product_asin"]}
                 # )
-                if (
-                    item["product_details"] != {}
-                    and item["product_asin"] != "NA"
-                ):
-                    # print(item)
-                    spider.success_counts['added'] += 1
-                    self.db[self.output_collection_name].insert_one(ItemAdapter(item).asdict())
+                # print(item)
+                spider.success_counts['added'] += 1
+                self.db[self.output_collection_name].insert_one(ItemAdapter(item).asdict())
         
         return item
 
@@ -583,9 +578,9 @@ class AmazonProductDailyMovementToMongoPipeline:
             for prod in input_prods:
                 spider.urls.append(prod['product_url'])
                 # spider.urls.append("http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote(prod['product_url'].encode('utf-8'))))
-        else:
-            spider.urls = spider.failed_urls.copy()
-            spider.failed_urls.clear()
+        # else:
+        #     spider.urls = spider.failed_urls.copy()
+        #     spider.failed_urls.clear()
 
         # print("******\n", spider.urls)
         
@@ -683,16 +678,8 @@ class ShareOfSearchPipeline:
         self.db = self.client[self.mongo_db]
         if spider.cold_run:
             for keyword in spider.keywords:
-                for page in range(spider.pages):
-                    # TODO add correct format
-                    # spider.urls.append("https://www.amazon.in/s?k={}&page={}".format('+'.join(keyword.split()), page+1))
-                    spider.urls.append("https://www.amazon.in/s?k={}&page={}".format(quote(keyword).replace("%20", "+"), page+1))
-                    # spider.urls.append("http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote("https://www.amazon.in/s?k={}&page={}".format('+'.join(keyword.split()), page+1).encode('utf-8'))))
-        else:
-            spider.urls = spider.failed_urls.copy()
-            spider.failed_urls.clear()
-
-        # print(spider.urls)
+                spider.urls.append("https://www.amazon.in/s?k={}".format(quote(keyword).replace("%20", "+")))
+                
         print("********\nShare of Search Pipeline Started\n********")
 
     def close_spider(self, spider):
@@ -721,11 +708,6 @@ class ShareOfSearchPipeline:
         
         if spider.name == "AmazonShareOfSearchSpider":
             if isinstance(item, AmazonShareOfSearchItem):
-                # for product in item['products']:
-                    # existing_item = self.db[self.collection_name].find_one(
-                    #     {"product_asin": product["product_asin"]}
-                    # )
-                    # print("*****\nITEM:", item)
                     spider.success_counts['added'] += 1
                     self.db[self.collection_name].find_one_and_update(
                         {
@@ -741,7 +723,8 @@ class ShareOfSearchPipeline:
                                     "product_rank": item["product_rank"],
                                     "product_original_price": item["product_original_price"],
                                     "product_sale_price": item["product_sale_price"],
-                                    "product_fullfilled": item["product_fullfilled"]
+                                    "product_fullfilled": item["product_fullfilled"],
+                                    "sponsored": item['sponsored']
                                 }
                             }
                         },

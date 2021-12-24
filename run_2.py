@@ -1,15 +1,15 @@
-from scrapy.crawler import CrawlerProcess, CrawlerRunner
-from twisted.internet import reactor, defer
-from amazon_product_scraping.spiders.AmazonTop100BSRSpider import AmazonTop100BSRSpider
-from amazon_product_scraping.spiders.AmazonSearchListSpider import AmazonSearchListSpider
-from amazon_product_scraping.spiders.AmazonProductInfoSpider import AmazonProductInfoSpider
-from amazon_product_scraping.spiders.AmazonProductSalePriceBSRSpider import AmazonProductSalePriceBSRSpider
-from amazon_product_scraping.spiders.AmazonProductCommentsSpider import AmazonProductCommentsSpider
-from amazon_product_scraping.spiders.AmazonShareOfSearchSpider import AmazonShareOfSearchSpider
-from scrapy.utils.project import get_project_settings
-import datetime
+# from scrapy.crawler import CrawlerProcess, CrawlerRunner
+# from twisted.internet import reactor, defer
+# from amazon_product_scraping.spiders.AmazonTop100BSRSpider import AmazonTop100BSRSpider
+# from amazon_product_scraping.spiders.AmazonSearchListSpider import AmazonSearchListSpider
+# from amazon_product_scraping.spiders.AmazonProductInfoSpider import AmazonProductInfoSpider
+# from amazon_product_scraping.spiders.AmazonProductSalePriceBSRSpider import AmazonProductSalePriceBSRSpider
+# from amazon_product_scraping.spiders.AmazonProductCommentsSpider import AmazonProductCommentsSpider
+# from amazon_product_scraping.spiders.AmazonShareOfSearchSpider import AmazonShareOfSearchSpider
+# from scrapy.utils.project import get_project_settings
+# import datetime
 
-
+'''
 settings = get_project_settings()
 process = CrawlerRunner(settings=settings)
 
@@ -147,7 +147,7 @@ def run():
         cold_run = False
         total_success_counts['added'] += success_counts['added']
         with open('run_summary.log', 'a') as f:
-            f.write("Run {}:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} URLs failed\n\n".format(i+1, success_counts['added']), len(failed_urls))
+            f.write("Run {}:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} URLs failed\n\n".format(i+1, success_counts['added'], len(failed_urls)))
         if len(failed_urls) == 0:
             break
 
@@ -170,3 +170,11 @@ def run():
 
 run()
 reactor.run()
+'''
+
+from twisted.internet import reactor
+from run import run
+
+if __name__ == "__main__":
+    run(bsr_100=True, search_list=True, price_bsr_move=True, comments=False, sos=True)
+    reactor.run()

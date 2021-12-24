@@ -15,7 +15,7 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
         True
     name : str
         spider name which identify the spider
-    rotate_user_agent : Bollean
+    rotate_user_agent : Boolean
         True
     allowed_domains : list
         contains base-URLs for the allowed domains for the spider to crawl
@@ -23,6 +23,7 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
         a list of URLs for the spider to start crawling from
     """
 
+    debug = False
     handle_httpstatus_all = True
     name = "AmazonTop100BSRSpider"
     rotate_user_agent = True
@@ -45,31 +46,48 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
         #     urls = self.failed_urls
         # else:
         #     urls = self.start_urls
-
-        for url in self.urls:
-            yield WebScrapingApiRequest(
-                url=url,
-                callback=partial(self.parse, url)
-                # meta={
-                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                # },
-            )
+        print(self.urls)
+        if self.cold_run:
+            for url in self.urls:
+                self.add_to_failed('bsr_list', {'url': url})
+                yield WebScrapingApiRequest(
+                    url = url,
+                    callback = partial(self.parse_bsr_list, {'url': url})
+                )
+        else:
+            for func, params in self.failed_urls:
+                if func == 'bsr_list':
+                    yield WebScrapingApiRequest(
+                        url = params['url'],
+                        callback = partial(self.parse_bsr_list, params)
+                    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.failed_urls = kwargs['failed_urls']
         self.cold_run = kwargs['cold_run']
         self.success_counts = kwargs['success_counts']
-        # self.urls = [
-        #     "http://api.scrapeup.com/?api_key={}&url={}".format("0b0df76f8a0571637677d78f121444ed", quote("https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031".encode('utf-8'))),
-        #     "http://api.scrapeup.com/?api_key={}&url={}".format("0b0df76f8a0571637677d78f121444ed", quote("https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2".encode('utf-8'))),
-        # ]
-        self.urls = [
-            "https://tinyurl.com/x8we47hb", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031
-            "https://tinyurl.com/hwnp6vz3", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2
-        ]
+        if self.cold_run:
+            self.urls = kwargs['start_urls']
+            # self.urls = [
+            #     "https://tinyurl.com/x8we47hb", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031
+            #     "https://tinyurl.com/hwnp6vz3", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2
+            # ]
+        else:
+            self.urls = []
 
-    def parse(self, url, response):
+    def add_to_failed(self, parser_func, params):
+        wrapper = [parser_func, params]
+        print("Adding: {}".format(wrapper))
+        if wrapper not in self.failed_urls:
+            self.failed_urls.append(wrapper)
+
+    def remove_from_failed(self, parser_func, params):
+        wrapper = [parser_func, params]
+        if wrapper in self.failed_urls:
+            self.failed_urls.remove(wrapper)
+
+    def parse_bsr_list(self, params, response):
         """
         A class method used to parse the response for each request, extract scraped data as dicts.
 
@@ -83,40 +101,50 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
         dicts
             extract the scraped data as dicts
         """
-        print(type(response))
+        
         print(response.url, response.status)
-        if response.status != 200:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+        print(params)
 
-        items = AmazonSearchProductList()
-        links_xpath = (
-            response.xpath('//div[@id="zg-center-div"]')
-            .xpath('//a[@class="a-link-normal"]/@href')
-            .extract()
-        )
+        failed = False
+        if response.status != 200:
+            failed = True
+
+        item = AmazonSearchProductList()
+        links_xpath = response.xpath('//div[@id="zg-center-div"]').xpath('//a[@class="a-link-normal"]/@href').extract()
+        
         if len(links_xpath) == 0:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
         try:
             links = [i for i in links_xpath if "/dp/" in i]
-            asins = [(i.split("/dp/")[1]).split("/")[0] for i in links]
+            # asins = [(i.split("/dp/")[1]).split("/")[0] for i in links]
+            asins = [(i.split("/dp/")[1]).split("/")[0].split('?')[0] for i in links]
         except:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
         # bsr_xpath = response.xpath(
         #     '//div[@id="zg-center-div"]//span//span//text()'
         # ).extract()
         # bsr = [i + " in Shampoos (Beauty)" for i in bsr_xpath if "#" in i]
 
-        # items["links"] = links
-        # items["asin"] = asin
-        # items["bsr"] = bsr
+        # item["links"] = links
+        # item["asin"] = asin
+        # item["bsr"] = bsr
 
         products = []
         for asin in asins:
             products.append({'product_asin': asin, 'product_url': 'https://www.amazon.in/dp/{}'.format(asin)})
         
         print(len(products))
-        items['products'] = products
-        yield items
+        item['products'] = products
+        if failed:
+            yield None
+            if self.debug:
+                print("**DEBUG:**/n {}".format(item))
+                with open('fails/100_BSR_{}.html'.format(params['url'].split('/')[-1]), 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+        else:
+            # if self.debug:
+            #     print("**DEBUG:**/n {}".format(item))
+            #     with open('fails/100_BSR_{}.html'.format(params['url'].split('/')[-1]), 'w', encoding='utf-8') as f:
+            #         f.write(response.text)
+            self.remove_from_failed('bsr_list', params)
+            yield item

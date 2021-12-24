@@ -2,6 +2,13 @@ from datetime import datetime
 import re
 
 
+def is_float(element: str) -> bool:
+    try:
+        float(element)
+        return True
+    except ValueError:
+        return False
+
 class AmazonScrapingHelper:
     """
     A class used to return attributes of an amazon product using xpath.
@@ -57,7 +64,71 @@ class AmazonScrapingHelper:
             return brand
         else:
             return "NA"
+    
+    def get_sale_price(self, response):
+        # Table Layout
+        # //*[@id="corePrice_desktop"]/div/table/tbody/tr[2]/td[2]/span[1]/span[1]
+# //*[@id="corePrice_desktop"]/div/table/tbody/tr[2]/td[2]/span[1]/span[2]
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div/span[1]/span[2]/span[2]
+        # if 2 values are given then MRP & Price
+        price_xpaths = response.xpath('//*[@id="corePrice_desktop"]/div//tr/td[2]/span[1]/span[1]/text()')
+        if len(price_xpaths) == 2:
+            sale_price_xpath_text = price_xpaths[1].extract()
+        elif len(price_xpaths) == 1:
+            sale_price_xpath_text = price_xpaths[0].extract()
+        else:
+            sale_price_xpath_text = []
+        
+        sale_price_strip = (
+            ("".join(sale_price_xpath_text).strip())
+            .replace("\xa0", "")
+            .replace("\u20b9", "")
+        )
 
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[1]/span[1]
+        if len(sale_price_xpath_text) == 0 or not is_float(sale_price_strip):
+            # Up MRP & Down Row Price
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div/span[1]/span[1]
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div/span[1]/span[2]/span[2]/text()
+            sale_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div/span[1]/span[1]/text()').extract()
+            sale_price_strip = (
+                ("".join(sale_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+
+        if len(sale_price_xpath_text) == 0 or not is_float(sale_price_strip):
+            # Row Layout
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[1]/span[2]/span[2]
+            sale_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[1]/span[2]/span[2]/text()').extract()
+            sale_price_strip = (
+                ("".join(sale_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+
+        if len(sale_price_xpath_text) == 0 or not is_float(sale_price_strip):
+            # Up Row Price & Down MRP
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]
+            sale_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]/text()').extract()
+            sale_price_strip = (
+                ("".join(sale_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+        
+        # sale_price = []
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        sale_price_dict = {}
+        sale_price_dict["time"] = current_time
+        sale_price_dict["value"] = sale_price_strip
+        # sale_price.append(sale_price_dict)
+        # print(sale_price_dict)
+        return sale_price_dict
+        
+    '''
     def get_sale_price(self, response):
         """
         Parameters
@@ -70,18 +141,57 @@ class AmazonScrapingHelper:
         dict
             object with current time and sale price of the amazon product
         """
+        try:
+            print("PS1")
+            sale_price_xpath_text = response.xpath('//span[contains(@id,"priceblock_dealprice") or contains(@id,"priceblock_ourprice")]/text()').extract()
+        except:
+            sale_price_xpath_text = []
 
-        sale_price_xpath_text = (
-            response.xpath(
-                '//span[contains(@id,"priceblock_dealprice") or contains(@id,"priceblock_ourprice")]/text()'
-            ).extract()
-            or "NA"
-        )
+        print("P1 {}, {}".format(sale_price_xpath_text, type(sale_price_xpath_text)))
+
+        try:
+            print("PS2", len(sale_price_xpath_text))
+            if len(sale_price_xpath_text) == 0:
+                # print(response.xpath('//*[@id="corePrice_desktop"]/div').extract())
+                sale_price_xpath_text = response.xpath('//*[@id="corePrice_desktop"]/div//span[1]/span[2]/text()').extract()
+                print(sale_price_xpath_text, len(sale_price_xpath_text))
+                if len(sale_price_xpath_text) > 1:
+                    sale_price_xpath_text = sale_price_xpath_text[1]
+                print(sale_price_xpath_text)
+        except:
+            sale_price_xpath_text = []
+            
+        print("P2 {}, {}".format(sale_price_xpath_text, type(sale_price_xpath_text)))
+
+        try:
+            print("PS3", len(sale_price_xpath_text))
+            if len(sale_price_xpath_text) == 0:
+                print(response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[1]/span[1]').extract())
+                sale_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[1]/span[1]/text()').extract()
+        except:
+            sale_price_xpath_text = []
+
+        print("P3 {}, {}".format(sale_price_xpath_text, type(sale_price_xpath_text)))
+
+        # if len(sale_price_xpath_text) == 0:
+        #     sale_price_xpath_text = "NA"
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[2]/span[2]
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]
+# /html/body/div[2]/div[2]/div[5]/div[3]/div[4]/div[10]/div[1]/div[1]/span[2]/span[2]/span[2]
+# //*[@id="corePrice_desktop"]/div/table/tbody/tr[2]/td[2]/span[1]/span[2]
+# response.xpath('//*[@class="a-price aok-align-center a-text-bold priceSizeOverride priceToPay"]/span[1]/text()').extract()
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]
+# response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]//span[@class="a-offscreen"]/text()').extract()
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[2]/span[2]
+# //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]
+# //*[@id="corePrice_desktop"]/div/table/tbody/tr[2]/td[2]/span[1]/span[1]
+
         sale_price_strip = (
             ("".join(sale_price_xpath_text).strip())
             .replace("\xa0", "")
             .replace("\u20b9", "")
         )
+        print("NO ERROR")
         # sale_price = []
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -89,8 +199,9 @@ class AmazonScrapingHelper:
         sale_price_dict["time"] = current_time
         sale_price_dict["value"] = sale_price_strip
         # sale_price.append(sale_price_dict)
+        print(sale_price_dict)
         return sale_price_dict
-
+    '''
     def get_offers(self, response):
         """
         Parameters
@@ -127,17 +238,68 @@ class AmazonScrapingHelper:
             original price of the amazon product
         """
 
-        original_price_xpath_text = (
-            response.xpath(
-                '//span[@class="priceBlockStrikePriceString a-text-strike"]/text()'
-            ).extract()
-            or "NA"
-        )
+        # original_price_xpath_text = response.xpath('//span[@class="priceBlockStrikePriceString a-text-strike"]/text()').extract()
+        # if len(original_price_xpath_text) == 0:
+        #     print("O1")
+        #     original_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]//span[@class="a-offscreen"]/text()').extract()
+        #     if len(original_price_xpath_text) == 0:
+        #         print("O2")
+        #         original_price_xpath_text = response.xpath('//*[@id="corePrice_desktop"]/div//span[1]/span[2]/text()').extract()
+        #         if len(original_price_xpath_text) > 1:
+        #             print("O3")
+        #             original_price_xpath_text = original_price_xpath_text[0]
+        
+        # //*[@id="corePriceDisplay_desktop_feature_div"]/span/span[2]/span/span[2]
+
+        # Table Layout
+        # //*[@id="corePrice_desktop"]/div/table/tbody/tr[1]/td[2]/span[1]/span[2]
+        original_price_xpath_text = response.xpath('//*[@id="corePrice_desktop"]/div//tr[1]/td[2]/span[1]/span[2]/text()').extract()
         original_price = (
             ("".join(original_price_xpath_text).strip())
             .replace("\xa0", "")
             .replace("\u20b9", "")
         )
+
+        if len(original_price_xpath_text) == 0 or not is_float(original_price): 
+            # Up MRP & Down Row Price
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/span/span[1]/span/span[2]
+            original_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/span/span/span/span[2]/text()').extract()
+            original_price = (
+                ("".join(original_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+
+        if len(original_price_xpath_text) == 0 or not is_float(original_price):
+            # Row Layout
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]/span/span[2]
+            original_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[2]/span[1]/span/span[2]/text()').extract()
+            original_price = (
+                ("".join(original_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+
+        if len(original_price_xpath_text) == 0 or not is_float(original_price):
+            # Up Row Price & Down MRP
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div[2]/span/span[1]/span/span[2]
+            original_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div[2]/span/span[1]/span/span[2]/text()').extract()
+            original_price = (
+                ("".join(original_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+
+        if len(original_price_xpath_text) == 0 or not is_float(original_price):
+            # Only Price & No MRP
+            # //*[@id="corePriceDisplay_desktop_feature_div"]/div[1]/span[1]/span[1]
+            original_price_xpath_text = response.xpath('//*[@id="corePriceDisplay_desktop_feature_div"]/div/span[1]/span[1]/text()').extract()
+            original_price = (
+                ("".join(original_price_xpath_text).strip())
+                .replace("\xa0", "")
+                .replace("\u20b9", "")
+            )
+
         return original_price
 
     def get_fullfilled(self, response):

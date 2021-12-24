@@ -18,7 +18,7 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         True
     name : str
         spider name which identify the spider
-    rotate_user_agent : Bollean
+    rotate_user_agent : Boolean
         True
     allowed_domains : list
         contains base-URLs for the allowed domains for the spider to crawl
@@ -26,6 +26,7 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         a list of URLs for the spider to start crawling from
     """
 
+    debug = False
     handle_httpstatus_all = True
     name = "AmazonSearchListSpider"
     rotate_user_agent = True
@@ -42,26 +43,27 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
 
         Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
         """
-        if "https://tinyurl.com/xpme2pv4" in self.urls:
-            # Count link
-            yield WebScrapingApiRequest(
-                url="https://tinyurl.com/xpme2pv4",
-                callback= partial(self.parse_count, "https://tinyurl.com/xpme2pv4")
-                # meta={
-                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                # }
+
+        if self.cold_run:
+            for url in self.urls:
+                self.add_to_failed('count', {'url': url})
+
+                yield WebScrapingApiRequest(
+                url = url,
+                callback = partial(self.parse_count, {'url': url})
             )
         else:
-            # ProductList links
-            assert self.cold_run == False
-            for url in self.urls:
-                yield WebScrapingApiRequest(
-                    url=url,
-                    callback= partial(self.parse_product_list, url)
-                    # meta={
-                    #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                    # }
-                )
+            for func, params in self.failed_urls:
+                if func == 'count':
+                    yield WebScrapingApiRequest(
+                        url = params['url'],
+                        callback = partial(self.parse_count, params)
+                    )
+                elif func == 'list':
+                    yield WebScrapingApiRequest(
+                        url = params['url'],
+                        callback = partial(self.parse_product_list, params)
+                    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,11 +73,29 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         # self.urls = [
         #     "http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote("https://www.amazon.in/s?k=shampoo&i=beauty&rh=n%3A1355016031%2Cp_89%3ABiotique%7CDove%7CHead+%26+Shoulders%7CL%27Oreal+Paris%7CTRESemme".encode('utf-8')))
         # ]
-        self.urls = [
-            "https://tinyurl.com/xpme2pv4", # https://www.amazon.in/s?k=shampoo&i=beauty&rh=n%3A1355016031%2Cp_89%3ABiotique%7CDove%7CHead+%26+Shoulders%7CL%27Oreal+Paris%7CTRESemme
-        ]
+        if self.cold_run:
+            self.urls = kwargs['start_urls']
+            # self.urls = [
+            #     # "https://tinyurl.com/xpme2pv4", # https://www.amazon.in/s?k=shampoo&i=beauty&rh=n%3A1355016031%2Cp_89%3ABiotique%7CDove%7CHead+%26+Shoulders%7CL%27Oreal+Paris%7CTRESemme
+            #     # "https://tinyurl.com/y5ksfjaz", 
+            #     "https://tinyurl.com/ycku6d56",
+            #     "https://tinyurl.com/2p9cyy28",
+            #     "https://tinyurl.com/2p8bfv5z"
+            # ]
+        else:
+            self.urls = []
 
-    def parse_count(self, url, response):
+    def add_to_failed(self, parser_func, params):
+        wrapper = [parser_func, params]
+        if wrapper not in self.failed_urls:
+            self.failed_urls.append(wrapper)
+
+    def remove_from_failed(self, parser_func, params):
+        wrapper = [parser_func, params]
+        if wrapper in self.failed_urls:
+            self.failed_urls.remove(wrapper)
+
+    def parse_count(self, params, response):
         """
         A class method used to parse the response for each request, extract scraped data as dicts.
 
@@ -91,43 +111,63 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         """
 
         print(response.url, response.status)
+        
+        failed = False
         if response.status != 200:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
         item = AmazonSearchCount()
         counts = (
-            response.xpath('//*[@id="search"]/span/div/span/h1/div/div[1]/div/div/span[1]/text()')
+            response.xpath('//*[@id="search"]/span/div//h1/div/div[1]/div/div/span[1]/text()')
             .extract_first()
         )
         print(counts)
         counts = counts.split() if isinstance(counts, str) else []
         print(counts)
         try:
-            count = int(counts[counts.index('of')+1].replace(',', ''))
-        except:
-            try:
+            if 'over' in counts:
                 count = int(counts[counts.index('over')+1].replace(',', ''))
-            except:
-                count = 0
-                print("No count of products found")
-                if url not in self.failed_urls:
-                    self.failed_urls.append(url)
+                per_page = int(counts[counts.index('of')-1].split('-')[1].replace(',', ''))
+            elif 'of' in counts:
+                count = int(counts[counts.index('of')+1].replace(',', ''))
+                per_page = int(counts[counts.index('of')-1].split('-')[1].replace(',', ''))
+            else:
+                count = int(counts[counts.index('results')-1].replace(',', ''))
+                per_page = count
+        except:
+            count = None
+            print("No count of products found")
+            failed = True
 
         item["count"] = count
         print("**********\n Count:", count)
-        yield item
-        # TODO Remove '/5'
-        for i in range(1, min(51, ceil(count/48))):
-            yield WebScrapingApiRequest(
-                url = url + quote("?page={}".format(i).encode('utf-8')),
-                callback= partial(self.parse_product_list, url + quote("?page={}".format(i).encode('utf-8'))),
-                # meta={
-                #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                # }
-            )
+        
+        if failed:
+            if self.debug:
+                with open('fails/Search_List_{}.html'.format(params['url']), 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+            yield None
+        else:
+            if self.debug:
+                with open('fails/Search_List_{}.html'.format(params['url']), 'w', encoding='utf-8') as f:
+                    f.write(response.text)
+            self.remove_from_failed('count', params)
 
-    def parse_product_list(self, url, response):
+
+            yield item
+            if isinstance(count, int):
+                for i in range(1, min(51, ceil(count/per_page)+1)):
+                    next_page_url = params['url'] + quote("?page={}".format(i).encode('utf-8'))
+                    self.add_to_failed('list', {'url': next_page_url})
+                    yield WebScrapingApiRequest(
+                        url = next_page_url,
+                        callback= partial(self.parse_product_list, {'url': next_page_url}),
+                        # meta={
+                        #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
+                        # }
+                    )
+
+    def parse_product_list(self, params, response):
         """
         A class method used to parse the response for each request, extract scraped data as dicts.
 
@@ -141,35 +181,36 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         dicts
             extract the scraped data as dicts
         """
-        if response.status != 200:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
-
         print(response.url, response.status)
+        print(params)
+
+        failed = False
+        if response.status != 200:
+            failed = True
+
         items = AmazonSearchProductList()
-        # /html/body/div[1]/div[2]/div[1]/div[1]/div/span[3]/div[2]/div[1]
-        # /html/body/div[1]/div[2]/div[1]/div[1]/div/span[3]/div[2]/div[2]
-        # //*[@id="search"]/div[1]/div[1]/div/span[3]/div[2]/div[2]
+        products = []
         try:
+            # # //*[@id="search"]/div[1]/div[1]/div/span[3]/div[2]/div
             asins = set(response.xpath('//*[@id="search"]/div[1]/div[1]/div/span[3]/div[2]/div/@data-asin').extract())
             asins.discard('')
-            products = []
             for asin in asins:
                 products.append({'product_asin': asin, 'product_url': 'https://www.amazon.in/dp/{}'.format(asin)})
             
             if len(asins) == 0:
-                if url not in self.failed_urls:
-                    self.failed_urls.append(url)
-            # if len(products) == 0 and url not in self.failed_urls:
-            #     if url not in self.failed_urls:
-            #         self.failed_urls.append(url)
+                failed = True
         except:
-            if url not in self.failed_urls:
-                self.failed_urls.append(url)
+            failed = True
 
-        items['products'] = products
-        # print("****\nItem:", items)
         print(len(products))
-        yield items
+
+        if failed:
+            yield None
+        else:
+            self.remove_from_failed('list', params)
+            items['products'] = products
+            # print("****\nItem:", items)
+            
+            yield items
 
 # from requests import get
