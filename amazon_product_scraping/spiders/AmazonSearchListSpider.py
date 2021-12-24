@@ -1,8 +1,5 @@
-import scrapy
-from scrapy import settings
 from amazon_product_scraping.items import AmazonSearchCount, AmazonSearchProductList
 from math import ceil
-from scrapy.http.response.html import HtmlResponse
 from urllib.parse import quote
 from webscrapingapi_scrapy_sdk import WebScrapingApiSpider, WebScrapingApiRequest
 from functools import partial
@@ -30,7 +27,6 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
     handle_httpstatus_all = True
     name = "AmazonSearchListSpider"
     rotate_user_agent = True
-    # allowed_domains = ["amazon.in"]
     custom_settings = {
         'ITEM_PIPELINES': {
             'amazon_product_scraping.pipelines.NewListingProductURLToMongoPipeline': 300
@@ -70,18 +66,9 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
         self.failed_urls = kwargs['failed_urls']
         self.cold_run = kwargs['cold_run']
         self.success_counts = kwargs['success_counts']
-        # self.urls = [
-        #     "http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote("https://www.amazon.in/s?k=shampoo&i=beauty&rh=n%3A1355016031%2Cp_89%3ABiotique%7CDove%7CHead+%26+Shoulders%7CL%27Oreal+Paris%7CTRESemme".encode('utf-8')))
-        # ]
+        self.mongo_db = kwargs['mongo_db']
         if self.cold_run:
             self.urls = kwargs['start_urls']
-            # self.urls = [
-            #     # "https://tinyurl.com/xpme2pv4", # https://www.amazon.in/s?k=shampoo&i=beauty&rh=n%3A1355016031%2Cp_89%3ABiotique%7CDove%7CHead+%26+Shoulders%7CL%27Oreal+Paris%7CTRESemme
-            #     # "https://tinyurl.com/y5ksfjaz", 
-            #     "https://tinyurl.com/ycku6d56",
-            #     "https://tinyurl.com/2p9cyy28",
-            #     "https://tinyurl.com/2p8bfv5z"
-            # ]
         else:
             self.urls = []
 
@@ -212,5 +199,3 @@ class AmazonSearchListSpider(WebScrapingApiSpider):
             # print("****\nItem:", items)
             
             yield items
-
-# from requests import get

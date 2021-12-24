@@ -1,10 +1,6 @@
-import scrapy
-import json
 from amazon_product_scraping.items import AmazonProductDailyMovementItem
 from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonScrapingHelper
-from amazon_product_scraping.utils.FileHelper import FileHelper
 import logging
-import pandas as pd
 from scrapy import signals
 from webscrapingapi_scrapy_sdk import WebScrapingApiSpider, WebScrapingApiRequest
 from functools import partial
@@ -36,11 +32,6 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
     handle_httpstatus_all = True
     name = "AmazonProductSalePriceBSRSpider"
     rotate_user_agent = True
-    # allowed_domains = ["amazon.in"]
-    # with open("amazon_product_scraping/configuration_file/config.json") as file:
-    #     input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
-    # start_urls = ["http://amazon.in/dp/B08K3HQ4M4"]
 
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -76,6 +67,7 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         self.cold_run = kwargs['cold_run']
         self.success_counts = kwargs['success_counts']
         self.urls = []
+        self.mongo_db = kwargs['mongo_db']
 
     def add_to_failed(self, parser_func, params):
         wrapper = [parser_func, params]

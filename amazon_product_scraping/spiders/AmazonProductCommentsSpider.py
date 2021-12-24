@@ -1,15 +1,6 @@
-from time import strptime
-from urllib.parse import quote, unquote
-import scrapy
-import json
 from amazon_product_scraping.items import AmazonProductCommentsItem
-from amazon_product_scraping.utils.AmazonScrapingHelper import (
-    AmazonCommentsScrapingHelper,
-)
-
-from amazon_product_scraping.utils.FileHelper import FileHelper
+from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonCommentsScrapingHelper
 import logging
-import pandas as pd
 from scrapy import signals
 from functools import partial
 import datetime
@@ -42,11 +33,6 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
     handle_httpstatus_all = True
     name = "AmazonProductCommentsSpider"
     rotate_user_agent = True
-    # allowed_domains = ["amazon.in"]
-    # with open("amazon_product_scraping/configuration_file/config.json") as file:
-    #     input_data = json.load(file)
-    # # start_urls = FileHelper.get_urls(input_data["product_data"]["old_data_file_path"])
-    # start_urls = ["http://amazon.in/dp/B006G84U56"]
     
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -63,15 +49,10 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
 
         if self.cold_run:
             for url in self.urls:
-                # asin = url.split("/dp/")[1].split("/")[0]
-                # for i in range(1, 6):
                 self.add_to_failed('comms', {'url': url})
                 yield WebScrapingApiRequest(
                     url=url,
                     callback=partial(self.parse_comms, {'url': url})
-                    # meta={
-                    #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                    # },
                 )
         else:
             for func, params in self.failed_urls:
@@ -88,6 +69,7 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
         self.count = kwargs['count']
         self.success_counts = kwargs['success_counts']
         self.urls = []
+        self.mongo_db = kwargs['mongo_db']
 
     def add_to_failed(self, parser_func, params):
         wrapper = [parser_func, params]

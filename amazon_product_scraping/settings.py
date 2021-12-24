@@ -30,7 +30,7 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
 # DOWNLOAD_TIMEOUT = 540
-# DOWNLOAD_DELAY = 0.25  # 3
+DOWNLOAD_DELAY = 0.25
 CONCURRENT_REQUESTS = 10
 # DEPTH_LIMIT = 10
 # The download delay setting will honor only one of:

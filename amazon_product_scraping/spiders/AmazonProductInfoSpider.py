@@ -1,10 +1,6 @@
-import scrapy
-import json
 from amazon_product_scraping.items import AmazonProductInfoItem
 from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonScrapingHelper
-from amazon_product_scraping.utils.FileHelper import FileHelper
 import logging
-import pandas as pd
 from scrapy import signals
 from webscrapingapi_scrapy_sdk import WebScrapingApiSpider, WebScrapingApiRequest
 from functools import partial
@@ -36,13 +32,6 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
     handle_httpstatus_all = True
     name = "AmazonProductInfoSpider"
     rotate_user_agent = True
-    # allowed_domains = ["amazon.in"]
-    # with open("amazon_product_scraping/configuration_file/config.json") as file:
-    #     input_data = json.load(file)
-    # start_urls = FileHelper.get_urls(input_data["product_data"]["new_data_file_path"])
-    # start_urls = [
-    #     # "http://amazon.in/dp/B07TBG6H63"
-    #     ]
 
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -63,9 +52,6 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
                 yield WebScrapingApiRequest(
                     url=url,
                     callback=partial(self.parse_info, {'url': url})
-                    # meta={
-                    #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
-                    # },
                 )
         else:
             for func, params in self.failed_urls:
@@ -81,6 +67,7 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
         self.cold_run = kwargs['cold_run']
         self.success_counts = kwargs['success_counts']
         self.urls = []
+        self.mongo_db = kwargs['mongo_db']
 
     def add_to_failed(self, parser_func, params):
         wrapper = [parser_func, params]

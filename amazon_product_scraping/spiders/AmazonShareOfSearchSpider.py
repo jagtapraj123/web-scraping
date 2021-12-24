@@ -1,12 +1,8 @@
-import scrapy
-from scrapy import settings
 from amazon_product_scraping.items import AmazonShareOfSearchItem, AmazonSearchCount
 from math import ceil
 from functools import partial
 from amazon_product_scraping.utils.AmazonScrapingHelper import AmazonScrapingHelper
 from webscrapingapi_scrapy_sdk import WebScrapingApiSpider, WebScrapingApiRequest
-from datetime import datetime
-from urllib.parse import quote
 
 
 class AmazonShareOfSearchSpider(WebScrapingApiSpider):
@@ -32,10 +28,6 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
     handle_httpstatus_all = True
     name = "AmazonShareOfSearchSpider"
     rotate_user_agent = True
-    # allowed_domains = ["amazon.in"]
-    # urls = [
-    #     "https://www.amazon.in/s?k=hair+fall+control+shampoo"
-    # ]
     custom_settings = {
         'ITEM_PIPELINES': {
             'amazon_product_scraping.pipelines.ShareOfSearchPipeline': 300
@@ -84,6 +76,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
         self.success_counts = kwargs['success_counts']
         self.time = kwargs['time']
         self.urls = []
+        self.mongo_db = kwargs['mongo_db']
 
     def add_to_failed(self, parser_func, params):
         wrapper = [parser_func, params]

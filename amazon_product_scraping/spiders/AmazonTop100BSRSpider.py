@@ -1,5 +1,3 @@
-from urllib.parse import quote
-import scrapy
 from amazon_product_scraping.items import AmazonSearchProductList
 from webscrapingapi_scrapy_sdk import WebScrapingApiSpider, WebScrapingApiRequest
 from functools import partial
@@ -27,7 +25,6 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
     handle_httpstatus_all = True
     name = "AmazonTop100BSRSpider"
     rotate_user_agent = True
-    # allowed_domains = ["amazon.in"]
     
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -41,12 +38,7 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
 
         Set our proxy port http://scraperapi:API_KEY@proxy-server.scraperapi.com:8001 as the proxy in the meta parameter.
         """
-        # print(self.failed_urls)
-        # if len(self.failed_urls) != 0:
-        #     urls = self.failed_urls
-        # else:
-        #     urls = self.start_urls
-        print(self.urls)
+        
         if self.cold_run:
             for url in self.urls:
                 self.add_to_failed('bsr_list', {'url': url})
@@ -67,12 +59,9 @@ class AmazonTop100BSRSpider(WebScrapingApiSpider):
         self.failed_urls = kwargs['failed_urls']
         self.cold_run = kwargs['cold_run']
         self.success_counts = kwargs['success_counts']
+        self.mongo_db = kwargs['mongo_db']
         if self.cold_run:
             self.urls = kwargs['start_urls']
-            # self.urls = [
-            #     "https://tinyurl.com/x8we47hb", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031
-            #     "https://tinyurl.com/hwnp6vz3", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2
-            # ]
         else:
             self.urls = []
 

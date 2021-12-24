@@ -9,230 +9,7 @@
 from urllib.parse import quote
 import pymongo
 from itemadapter import ItemAdapter
-from datetime import datetime
-from pymongo import ReturnDocument
-import pandas as pd
-from csv import writer
-import math
-
-from scrapy import crawler
-from amazon_product_scraping.items import AmazonSearchCount, AmazonSearchProductList, AmazonProductInfoItem, AmazonProductDailyMovementItem, AmazonShareOfSearchItem, AmazonProductCommentsItem
-
-
-# class MongoDBPipeline:
-#     """
-#     A class used to save the scraped item in MongoDB.
-
-#     Attributes
-#     ----------
-#     collection_name : str
-#         MongoDB collection name
-#     mongo_uri : str
-#         MongoDB address
-#     mongo_db : str
-#         MongoDB database name
-#     """
-
-#     collection_name = "product_data"
-#     collection_name_comments = "product_comments"
-
-#     def __init__(self, mongo_uri, mongo_db):
-#         self.mongo_uri = mongo_uri
-#         self.mongo_db = mongo_db
-
-#     @classmethod
-#     def from_crawler(cls, crawler):
-#         """
-#         A class method used to pull in information from settings.py.
-#         """
-
-#         return cls(
-#             mongo_uri=crawler.settings.get("MONGO_URI"),
-#             mongo_db=crawler.settings.get("MONGO_DATABASE", "items"),
-#         )
-
-#     def open_spider(self, spider):
-#         """
-#         This class method is called when initializing spider and opening MongoDB connection.
-
-#         Parameters
-#         ----------
-#         spider : object
-#             the spider which was opened
-#         """
-
-#         self.client = pymongo.MongoClient(self.mongo_uri)
-#         self.db = self.client[self.mongo_db]
-#         print("*******\nStarted\n********")
-
-#     def close_spider(self, spider):
-#         """
-#         This class method is called when the spider is closed.
-
-#         Parameters
-#         ----------
-#         spider : object
-#             the spider which was closed
-#         """
-
-#         self.client.close()
-
-#     def process_item(self, item, spider):
-#         """
-#         This class method is called for every item pipeline component.
-
-#         Parameters
-#         ----------
-#         item : item object
-#             the scraped item
-#         spider : object
-#             the spider which scraped the item
-#         """
-
-#         if spider.name == "AmazonProductInfoSpider":
-#             existing_item = self.db[self.collection_name].find_one(
-#                 {"product_asin": item["product_asin"]}
-#             )
-#             if (
-#                 not existing_item
-#                 and item["product_details"] != {}
-#                 and item["product_asin"] != "NA"
-#             ):
-#                 self.db[self.collection_name].insert_one(ItemAdapter(item).asdict())
-#                 # self.db[self.collection_name].find_one_and_update(
-#                 #     {"product_asin": item["product_asin"]},
-#                 #     {
-#                 #         "$set": {
-#                 #             "product_name": item["product_name"],
-#                 #             "product_brand": item["product_brand"],
-#                 #             "product_offers": item["product_offers"],
-#                 #             "product_original_price": item["product_original_price"],
-#                 #             # "product_fullfilled": item["product_fullfilled"],
-#                 #             "product_rating": item["product_rating"],
-#                 #             "product_total_reviews": item["product_total_reviews"],
-#                 #             # "product_availability": item["product_availability"],
-#                 #             "product_category": item["product_category"],
-#                 #             "product_icons": item["product_icons"],
-#                 #             "product_details": item["product_details"],
-#                 #             "product_important_information": item["product_important_information"],
-#                 #             "product_description": item["product_description"],
-#                 #             "product_bought_together": item["product_bought_together"],
-#                 #             # "product_subscription_discount": item[
-#                 #                 # "product_subscription_discount"
-#                 #             # ],
-#                 #             "product_variations": item["product_variations"]
-#                 #         }
-#                 #     },
-#                 #     upsert=True,
-#                 # )
-#             return item
-
-#         if spider.name == "AmazonProductSalePriceBSRSpider":
-#             existing_item = self.db[self.collection_name].find_one(
-#                 {"product_asin": item["product_asin"]}
-#             )
-#             if (
-#                 existing_item
-#                 and item["product_details"] != {}
-#                 and item["product_asin"] != "NA"
-#             ):
-#                 self.db[self.collection_name].find_one_and_update(
-#                     {"product_asin": item["product_asin"]},
-#                     {
-#                         "$push": {
-#                             "product_sale_price": item["product_sale_price"][0],
-#                             "product_best_seller_rank": item[
-#                                 "product_best_seller_rank"
-#                             ][0],
-#                             "product_fullfilled": item["product_fullfilled"][0],
-#                             "product_availability": item["product_availability"][0],
-#                             "product_subscription_discount": item[
-#                                 "product_subscription_discount"
-#                             ][0],
-#                         }
-#                     },
-#                     upsert=True,
-#                 )
-#             return item
-
-#         if spider.name == "AmazonTop100BSRSpider":
-#             for i, j in zip(item["asin"], item["bsr"]):
-#                 existing_item = self.db[self.collection_name].find_one(
-#                     {"product_asin": i}
-#                 )
-#                 if existing_item:
-#                     now = datetime.now()
-#                     current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-#                     best_seller_rank = {}
-#                     best_seller_rank["time"] = current_time
-#                     best_seller_rank["value"] = j
-#                     self.db[self.collection_name].find_one_and_update(
-#                         {"product_asin": i},
-#                         {
-#                             "$push": {
-#                                 "product_best_seller_rank": best_seller_rank,
-#                             }
-#                         },
-#                         upsert=True,
-#                     )
-#             return item
-
-#         if spider.name == "AmazonProductDuplicateBSRSpider":
-#             urls = []
-#             for i, j in zip(item["asin"], item["bsr"]):
-#                 existing_item = self.db[self.collection_name].find_one(
-#                     {"product_asin": i}
-#                 )
-#                 if not existing_item:
-#                     urls.append("http://amazon.in/dp/" + i)
-
-#             dict = {"URL": urls}
-#             df = pd.DataFrame(dict)
-#             df.drop(df.tail(1).index, inplace=True)
-#             df.to_csv(
-#                 "amazon_product_scraping/data/InputData/amazon_new_data.csv",
-#                 index=False,
-#             )
-
-#             df1 = pd.read_csv(
-#                 "amazon_product_scraping/data/InputData/amazon_product_data.csv"
-#             )
-#             combined = df1.append(df)
-#             with open(
-#                 "amazon_product_scraping/data/InputData/amazon_product_data.csv",
-#                 "w",
-#                 encoding="utf-8",
-#                 newline="",
-#             ) as file:
-#                 combined.to_csv(file, index=False)
-
-#             return item
-
-#         # if spider.name == "AmazonProductCommentsSpider":
-#         #     print("*****************\nRunning Here\n\n")
-#         #     existing_item = self.db[self.collection_name_comments].find_one(
-#         #         {"product_asin": item["product_asin"]}
-#         #     )
-#         #     for comment in item["product_comments"]:
-#         #         self.db[self.collection_name_comments].find_one_and_update(
-#         #             {"product_asin": item["product_asin"]},
-#         #             {
-#         #                 "$push": {
-#         #                     "comments": comment,
-#         #                 }
-#         #             },
-#         #             upsert=True,
-#         #         )
-#         #     return item
-
-#         if spider.name == "AmazonSearchListSpider":
-#             if isinstance(item, AmazonSearchCount):
-#                 pass
-#             if isinstance(item, AmazonSearchProductList):
-#                 # TODO
-#                 pass
-
-#             return item
+from amazon_product_scraping.items import AmazonSearchProductList, AmazonProductInfoItem, AmazonProductDailyMovementItem, AmazonShareOfSearchItem, AmazonProductCommentsItem
 
 class CommentsToMongoPipeline:
     """
@@ -250,9 +27,8 @@ class CommentsToMongoPipeline:
     input_collection_name = "product_list"
     output_collection_name = "product_comments"
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri):
         self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -262,7 +38,6 @@ class CommentsToMongoPipeline:
 
         return cls(
             mongo_uri=crawler.settings.get("MONGO_URI"),
-            mongo_db=crawler.settings.get("MONGO_DATABASE", "items"),
         )
 
     def open_spider(self, spider):
@@ -274,6 +49,10 @@ class CommentsToMongoPipeline:
         spider : object
             the spider which was opened
         """
+
+        self.mongo_db = spider.mongo_db
+
+        print("*******\nComments Pipeline Started : {}\n********".format(self.mongo_db))
 
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
@@ -309,14 +88,7 @@ class CommentsToMongoPipeline:
         #             spider.urls.append("https://www.amazon.in/Himalaya-Herbals-Anti-Shampoo-400ml/product-reviews/{}/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&filterByStar=three_star&pageNumber={}".format(asin, i))
         #             spider.urls.append("https://www.amazon.in/Himalaya-Herbals-Anti-Shampoo-400ml/product-reviews/{}/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&filterByStar=two_star&pageNumber={}".format(asin, i))
         #             spider.urls.append("https://www.amazon.in/Himalaya-Herbals-Anti-Shampoo-400ml/product-reviews/{}/ref=cm_cr_arp_d_viewopt_srt?ie=UTF8&reviewerType=all_reviews&sortBy=recent&filterByStar=one_star&pageNumber={}".format(asin, i))
-        #                 
-        # else:
-        #     spider.urls = spider.failed_urls.copy()
-        #     spider.failed_urls.clear()
 
-        # print("******\n", spider.urls)
-        
-        print("*******\nComments Pipeline Started\n********")
 
     def close_spider(self, spider):
         """
@@ -368,9 +140,8 @@ class NewListingProductURLToMongoPipeline:
     
     collection_name = "product_list"
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri):
         self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -380,7 +151,6 @@ class NewListingProductURLToMongoPipeline:
 
         return cls(
             mongo_uri=crawler.settings.get("MONGO_URI"),
-            mongo_db=crawler.settings.get("MONGO_DATABASE", "items"),
         )
 
     def open_spider(self, spider):
@@ -393,16 +163,13 @@ class NewListingProductURLToMongoPipeline:
             the spider which was opened
         """
 
+        self.mongo_db = spider.mongo_db
+
+        print("*******\nNew Listing URL Pipeline Started : {}\n********".format(self.mongo_db))
+
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
-        # TODO Add URL selecting code
-        # if spider.cold_run:
-        #     pass
-        # else:
-        #     spider.urls = spider.failed_urls.copy()
-        #     spider.failed_urls.clear()
 
-        print("*******\nNew Listing URL Pipeline Started\n********")
 
     def close_spider(self, spider):
         """
@@ -460,9 +227,8 @@ class AmazonProductInfoToMongoPipeline:
     input_collection_name = "product_list"
     output_collection_name = "product_data"
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri):
         self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -471,8 +237,7 @@ class AmazonProductInfoToMongoPipeline:
         """
 
         return cls(
-            mongo_uri=crawler.settings.get("MONGO_URI"),
-            mongo_db=crawler.settings.get("MONGO_DATABASE", "items"),
+            mongo_uri=crawler.settings.get("MONGO_URI")
         )
 
     def open_spider(self, spider):
@@ -484,6 +249,10 @@ class AmazonProductInfoToMongoPipeline:
         spider : object
             the spider which was opened
         """
+
+        self.mongo_db = spider.mongo_db
+
+        print("*******\nProduct Info Pipeline Started : {}\n********".format(self.mongo_db))
 
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
@@ -502,7 +271,6 @@ class AmazonProductInfoToMongoPipeline:
                     # spider.urls.append("http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote(prod['product_url'].encode('utf-8'))))
             print("END\n*****")
 
-        print("*******\nProduct Info Pipeline Started\n********")
 
     def close_spider(self, spider):
         """
@@ -545,9 +313,8 @@ class AmazonProductDailyMovementToMongoPipeline:
     input_collection_name = "product_list"
     output_collection_name = "product_data"
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri):
         self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -557,7 +324,6 @@ class AmazonProductDailyMovementToMongoPipeline:
 
         return cls(
             mongo_uri=crawler.settings.get("MONGO_URI"),
-            mongo_db=crawler.settings.get("MONGO_DATABASE", "items"),
         )
 
     def open_spider(self, spider):
@@ -570,6 +336,10 @@ class AmazonProductDailyMovementToMongoPipeline:
             the spider which was opened
         """
 
+        self.mongo_db = spider.mongo_db
+
+        print("*******\nProduct Daily Movement Pipeline Started : {}\n********".format(self.mongo_db))
+
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
         if spider.cold_run:
@@ -578,13 +348,7 @@ class AmazonProductDailyMovementToMongoPipeline:
             for prod in input_prods:
                 spider.urls.append(prod['product_url'])
                 # spider.urls.append("http://api.proxiesapi.com/?auth_key={}&url={}".format("b433886e7d6c73d3c24eeb0d9244f5c6_sr98766_ooPq87", quote(prod['product_url'].encode('utf-8'))))
-        # else:
-        #     spider.urls = spider.failed_urls.copy()
-        #     spider.failed_urls.clear()
-
-        # print("******\n", spider.urls)
         
-        print("*******\nProduct Daily Movement Pipeline Started\n********")
 
     def close_spider(self, spider):
         """
@@ -648,10 +412,8 @@ class ShareOfSearchPipeline:
     
     collection_name = "share_of_search"
 
-    def __init__(self, mongo_uri, mongo_db):
+    def __init__(self, mongo_uri):
         self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
-        # self.time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -661,7 +423,6 @@ class ShareOfSearchPipeline:
 
         return cls(
             mongo_uri=crawler.settings.get("MONGO_URI"),
-            mongo_db=crawler.settings.get("MONGO_DATABASE", "items"),
         )
 
     def open_spider(self, spider):
@@ -674,13 +435,16 @@ class ShareOfSearchPipeline:
             the spider which was opened
         """
 
+        self.mongo_db = spider.mongo_db
+
+        print("********\nShare of Search Pipeline Started : {}\n********".format(self.mongo_db))
+
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
         if spider.cold_run:
             for keyword in spider.keywords:
                 spider.urls.append("https://www.amazon.in/s?k={}".format(quote(keyword).replace("%20", "+")))
                 
-        print("********\nShare of Search Pipeline Started\n********")
 
     def close_spider(self, spider):
         """
