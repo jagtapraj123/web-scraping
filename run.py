@@ -21,12 +21,13 @@ def run(
         comments: bool = False, 
         sos: bool = False, 
         mongo_db: str = 'amazon_marketplace_scraping',
+        run_summary_file: str = 'run_summary',
         bsr_100_links: list = [],
         search_list_links: list = [],
         sos_keywords: list = []
     ):
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open('run_summary.log', 'a') as f:
+    with open('{}.log'.format(run_summary_file), 'a') as f:
         f.write("\n********************\n")
         f.write("Scraper started : {}\n\n".format(time))
 
@@ -54,12 +55,12 @@ def run(
             cold_run = False
             total_success_counts['new'] += success_counts['new']
             total_success_counts['existing'] += success_counts['existing']
-            with open('run_summary.log', 'a') as f:
+            with open('{}.log'.format(run_summary_file), 'a') as f:
                 f.write("Run {}:\nFound {} products in AmazonTop100BSRSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n\n".format(i+1, success_counts['new']+success_counts['existing'], success_counts['new'], success_counts['existing']))
             if len(failed_urls) == 0:
                 break
         
-        with open('run_summary.log', 'a') as f:
+        with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonTop100BSRSpider Summary:\nFound {} products in AmazonTop100BSRSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing']))
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             for j in range(len(failed_urls)):
@@ -90,12 +91,12 @@ def run(
             cold_run = False
             total_success_counts['new'] += success_counts['new']
             total_success_counts['existing'] += success_counts['existing']
-            with open('run_summary.log', 'a') as f:
+            with open('{}.log'.format(run_summary_file), 'a') as f:
                 f.write("Run {}:\nFound {} products in AmazonSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n\n".format(i+1, success_counts['new']+success_counts['existing'], success_counts['new'], success_counts['existing']))
             if len(failed_urls) == 0:
                 break
         
-        with open('run_summary.log', 'a') as f:
+        with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonSearchListSpider Summary:\nFound {} products in AmazonSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing']))
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             for j in range(len(failed_urls)):
@@ -125,12 +126,12 @@ def run(
             cold_run = False
             total_success_counts['new'] += success_counts['new']
             total_success_counts['added'] += success_counts['added']
-            with open('run_summary.log', 'a') as f:
+            with open('{}.log'.format(run_summary_file), 'a') as f:
                 f.write("Run {}:\nFound {} products in AmazonProductInfoSpider\n\t- {} successfully added to DB\n\n".format(i+1, success_counts['new'], success_counts['added']))
             if len(failed_urls) == 0:
                 break
 
-        with open('run_summary.log', 'a') as f:
+        with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonProductInfoSpider Summary:\nFound {} products in AmazonProductInfoSpider\n\t- {} successfully added to DB\n".format(total_success_counts['new'], total_success_counts['added']))
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             for j in range(len(failed_urls)):
@@ -160,12 +161,12 @@ def run(
             cold_run = False
             total_success_counts['new'] += success_counts['new']
             total_success_counts['added'] += success_counts['added']
-            with open('run_summary.log', 'a') as f:
+            with open('{}.log'.format(run_summary_file), 'a') as f:
                 f.write("Run {}:\nFound {} products in AmazonProductSalePriceBSRSpider\n\t- {} successfully added to DB\n\n".format(i+1, success_counts['new'], success_counts['added']))
             if len(failed_urls) == 0:
                 break
 
-        with open('run_summary.log', 'a') as f:
+        with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonProductSalePriceBSRSpider Summary:\nFound {} products in AmazonProductSalePriceBSRSpider\n\t- {} successfully added to DB\n".format(total_success_counts['new'], total_success_counts['added']))
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             for j in range(len(failed_urls)):
@@ -199,12 +200,12 @@ def run(
             total_success_counts['prods_checked'] += success_counts['prods_checked']
             total_success_counts['prods_with_new_comms'] += success_counts['prods_with_new_comms']
             total_success_counts['new_comments'] += success_counts['new_comments']
-            with open('run_summary.log', 'a') as f:
+            with open('{}.log'.format(run_summary_file), 'a') as f:
                 f.write("Run {}:\nChecked {} products in AmazonProductCommentsSpider\n\t- {} products had new comments\n\t- {} comments successfully added to DB\n\n".format(i+1, success_counts['prods_checked'], success_counts['prods_with_new_comms'], success_counts['new_comments']))
             if len(failed_urls) == 0:
                 break
 
-        with open('run_summary.log', 'a') as f:
+        with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonProductCommentsSpider Summary:\nChecked {} products in AmazonProductCommentsSpider\n\t- {} products had new comments\n\t- {} comments successfully added to DB\n\n".format(total_success_counts['prods_checked'], total_success_counts['prods_with_new_comms'], total_success_counts['new_comments']))
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             for j in range(len(failed_urls)):
@@ -235,12 +236,12 @@ def run(
             cold_run = False
             total_success_counts['added'] += success_counts['added']
             print(failed_urls)
-            with open('run_summary.log', 'a') as f:
+            with open('{}.log'.format(run_summary_file), 'a') as f:
                 f.write("Run {}:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} URLs failed\n\n".format(i+1, success_counts['added'], len(failed_urls)))
             if len(failed_urls) == 0:
                 break
 
-        with open('run_summary.log', 'a') as f:
+        with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n".format(total_success_counts['added']))
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             for j in range(len(failed_urls)):

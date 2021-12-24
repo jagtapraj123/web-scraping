@@ -9,6 +9,7 @@ if __name__ == "__main__":
         comments = True,
         sos = False,
         mongo_db = "amazon_marketplace_scraping_all_shampoos",
+        run_summary_file = "run_summary_all_shampoos",
         bsr_100_links = [
             "https://tinyurl.com/x8we47hb", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_nav_beauty_3_9851597031
             "https://tinyurl.com/hwnp6vz3", # https://www.amazon.in/gp/bestsellers/beauty/1374334031/ref=zg_bs_pg_2?ie=UTF8&pg=2
