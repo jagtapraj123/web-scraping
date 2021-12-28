@@ -8,6 +8,7 @@ from amazon_product_scraping.spiders.AmazonProductCommentsSpider import AmazonPr
 from amazon_product_scraping.spiders.AmazonShareOfSearchSpider import AmazonShareOfSearchSpider
 from scrapy.utils.project import get_project_settings
 import datetime
+from telegram_notifier import TelegramNotifier
 
 
 settings = get_project_settings()
@@ -27,10 +28,13 @@ def run(
         sos_keywords: list = []
     ):
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    telegram = TelegramNotifier()
+
     with open('{}.log'.format(run_summary_file), 'a') as f:
         f.write("\n********************\n")
         f.write("Scraper started : {}\n\n".format(time))
-
+    telegram.send_message("Hi,\nScraper Started: {}\nScraper: {} saving to DB {}".format(time, run_summary_file, mongo_db))
+    
     if bsr_100:
         # # Top 100 BSR Spider
         failed_urls = []
@@ -60,13 +64,18 @@ def run(
             if len(failed_urls) == 0:
                 break
         
+        telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonTop100BSRSpider Summary:\nFound {} products in AmazonTop100BSRSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing']))
+            telegram_message += "AmazonTop100BSRSpider Summary:\nFound {} products in AmazonTop100BSRSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
                 f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
-        
+        telegram.send_message(telegram_message)
+    
     if search_list:
         # # Search List Spider
         failed_urls = []
@@ -96,12 +105,17 @@ def run(
             if len(failed_urls) == 0:
                 break
         
+        telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonSearchListSpider Summary:\nFound {} products in AmazonSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing']))
+            telegram_message += "AmazonSearchListSpider Summary:\nFound {} products in AmazonSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
                 f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
+        telegram.send_message(telegram_message)
 
     if bsr_100 or search_list:
         # # Product Info Spider
@@ -130,13 +144,18 @@ def run(
                 f.write("Run {}:\nFound {} products in AmazonProductInfoSpider\n\t- {} successfully added to DB\n\n".format(i+1, success_counts['new'], success_counts['added']))
             if len(failed_urls) == 0:
                 break
-
+        
+        telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonProductInfoSpider Summary:\nFound {} products in AmazonProductInfoSpider\n\t- {} successfully added to DB\n".format(total_success_counts['new'], total_success_counts['added']))
+            telegram_message += "AmazonProductInfoSpider Summary:\nFound {} products in AmazonProductInfoSpider\n\t- {} successfully added to DB\n".format(total_success_counts['new'], total_success_counts['added'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
                 f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
+        telegram.send_message(telegram_message)
     
     if price_bsr_move:
         # # Product Sale Price BSR Spider
@@ -166,12 +185,17 @@ def run(
             if len(failed_urls) == 0:
                 break
 
+        telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonProductSalePriceBSRSpider Summary:\nFound {} products in AmazonProductSalePriceBSRSpider\n\t- {} successfully added to DB\n".format(total_success_counts['new'], total_success_counts['added']))
+            telegram_message += "AmazonProductSalePriceBSRSpider Summary:\nFound {} products in AmazonProductSalePriceBSRSpider\n\t- {} successfully added to DB\n".format(total_success_counts['new'], total_success_counts['added'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
                 f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
+        telegram.send_message(telegram_message)
     
     if comments:
         # # Product Comments Spider
@@ -205,12 +229,17 @@ def run(
             if len(failed_urls) == 0:
                 break
 
+        telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonProductCommentsSpider Summary:\nChecked {} products in AmazonProductCommentsSpider\n\t- {} products had new comments\n\t- {} comments successfully added to DB\n\n".format(total_success_counts['prods_checked'], total_success_counts['prods_with_new_comms'], total_success_counts['new_comments']))
+            telegram_message += "AmazonProductCommentsSpider Summary:\nChecked {} products in AmazonProductCommentsSpider\n\t- {} products had new comments\n\t- {} comments successfully added to DB\n\n".format(total_success_counts['prods_checked'], total_success_counts['prods_with_new_comms'], total_success_counts['new_comments'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
                 f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
+        telegram.send_message(telegram_message)
     
     if sos:
         # # Share of Search Spider
@@ -240,13 +269,18 @@ def run(
                 f.write("Run {}:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} URLs failed\n\n".format(i+1, success_counts['added'], len(failed_urls)))
             if len(failed_urls) == 0:
                 break
-
+        
+        telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
             f.write("AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n".format(total_success_counts['added']))
+            telegram_message += "AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n".format(total_success_counts['added'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
                 f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
+        telegram.send_message(telegram_message)
     
     reactor.stop()
 
