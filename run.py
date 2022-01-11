@@ -135,7 +135,8 @@ def run(
                 cold_run = cold_run, 
                 failed_urls = failed_urls,
                 mongo_db = mongo_db, 
-                success_counts = success_counts
+                success_counts = success_counts,
+                time = time
             )
             cold_run = False
             total_success_counts['new'] += success_counts['new']
@@ -172,6 +173,7 @@ def run(
             }
             yield process.crawl(
                 AmazonProductSalePriceBSRSpider,
+                time = time,
                 cold_run = cold_run,
                 failed_urls = failed_urls,
                 mongo_db = mongo_db,

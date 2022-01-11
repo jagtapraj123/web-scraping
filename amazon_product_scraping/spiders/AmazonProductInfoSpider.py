@@ -68,6 +68,7 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
         self.success_counts = kwargs['success_counts']
         self.urls = []
         self.mongo_db = kwargs['mongo_db']
+        self.time = kwargs['time']
 
     def add_to_failed(self, parser_func, params):
         wrapper = [parser_func, params]
@@ -132,20 +133,26 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
 
         helper = AmazonScrapingHelper()
         item = AmazonProductInfoItem()
+        
+        if not failed:
+            if self.debug:
+                print("title")
+            try:
+                title = helper.get_title(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                title = "NA"
+                failed = True
 
-        try:
-            title = helper.get_title(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            title = "NA"
-            failed = True
-
-        try:
-            brand = helper.get_brand(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            brand = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("brand")
+            try:
+                brand = helper.get_brand(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                brand = "NA"
+                failed = True
 
         # try:
         #     sale_price = helper.get_sale_price(response)
@@ -154,19 +161,25 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
         #     sale_price = "NA"
         #     failed = True
 
-        try:
-            offers = helper.get_offers(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            offers = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("offers")
+            try:
+                offers = helper.get_offers(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                offers = "NA"
+                failed = True
 
-        try:
-            original_price = helper.get_original_price(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            original_price = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("orig_price")
+            try:
+                original_price = helper.get_original_price(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                original_price = "NA"
+                failed = True
 
         # try:
         #     fullfilled = helper.get_fullfilled(response)
@@ -196,19 +209,25 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
         #     availability = "NA"
         #     failed = True
 
-        try:
-            category = helper.get_category(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            category = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("category")
+            try:
+                category = helper.get_category(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                category = "NA"
+                failed = True
 
-        try:
-            icons = helper.get_icons(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            icons = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("icons")
+            try:
+                icons = helper.get_icons(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                icons = "NA"
+                failed = True
 
         # try:
         #     best_seller_rank = helper.get_best_seller_rank_1(response)
@@ -219,48 +238,61 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
         #     best_seller_rank = "NA"
         #     failed = True
 
-        try:
-            product_details = helper.get_product_details_1(response)
-            if product_details == {}:
-                product_details = helper.get_product_details_2(response)
-            if product_details == {} and self.cold_run:
+        if not failed:
+            if self.debug:
+                print("details")
+            try:
+                product_details = helper.get_product_details_1(response, self.time)
+                if product_details == {}:
+                    product_details = helper.get_product_details_2(response, self.time)
+                if product_details == {} and self.cold_run:
+                    failed = True
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                product_details = "NA"
                 failed = True
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            product_details = "NA"
-            failed = True
         
-        # print(product_details)
+        if self.debug:
+            print("asin")
         try:
             # asin = helper.get_asin(response)
             asin = params['url'].split('/dp/')[1]
-            if asin == "NA":
+            if asin is None or asin == "":
                 failed = True
         except Exception:
             logging.error("Exception occurred", exc_info=True)
             asin = "NA"
             failed = True
 
-        try:
-            important_information = helper.get_important_information(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            important_information = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("imp_info")
+            try:
+                important_information = helper.get_important_information(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                important_information = "NA"
+                failed = True
 
-        try:
-            product_description = helper.get_product_description(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            product_description = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("description")
+            try:
+                product_description = helper.get_product_description(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                product_description = "NA"
+                failed = True
 
-        try:
-            bought_together = helper.get_bought_together(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            bought_together = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("bought_together")
+            try:
+                bought_together = helper.get_bought_together(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                bought_together = "NA"
+                failed = True
 
         # try:
         #     subscription_discount = helper.get_subscription_discount(response)
@@ -269,41 +301,49 @@ class AmazonProductInfoSpider(WebScrapingApiSpider):
         #     subscription_discount = "NA"
         #     failed = True
 
-        try:
-            variations = helper.get_variations(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            variations = "NA"
-            failed = True
+        if not failed:
+            if self.debug:
+                print("variations")
+            try:
+                variations = helper.get_variations(response)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                variations = "NA"
+                failed = True
 
-        item["product_name"] = title
-        item["product_brand"] = brand
-        # item["product_sale_price"] = sale_price
-        item["product_offers"] = offers
-        item["product_original_price"] = original_price
-        # item["product_fullfilled"] = fullfilled
-        # item["product_rating"] = rating
-        # item["product_total_reviews"] = total_reviews
-        # item["product_availability"] = availability
-        item["product_category"] = category
-        item["product_icons"] = icons
-        # item["product_best_seller_rank"] = best_seller_rank
-        item["product_details"] = product_details
-        item["product_asin"] = asin
-        item["product_important_information"] = important_information
-        item["product_description"] = product_description
-        item["product_bought_together"] = bought_together
-        # item["product_subscription_discount"] = subscription_discount
-        item["product_variations"] = variations
+        if not failed:
+            item["product_name"] = title
+            item["product_brand"] = brand
+            # item["product_sale_price"] = sale_price
+            item["product_offers"] = offers
+            item["product_original_price"] = original_price
+            # item["product_fullfilled"] = fullfilled
+            # item["product_rating"] = rating
+            # item["product_total_reviews"] = total_reviews
+            # item["product_availability"] = availability
+            item["product_category"] = category
+            item["product_icons"] = icons
+            # item["product_best_seller_rank"] = best_seller_rank
+            item["product_details"] = product_details
+            item["product_asin"] = asin
+            item["product_important_information"] = important_information
+            item["product_description"] = product_description
+            item["product_bought_together"] = bought_together
+            # item["product_subscription_discount"] = subscription_discount
+            item["product_variations"] = variations
 
         if failed:
             if self.debug:
-                print("**DEBUG:**/n {}".format(item))
-                with open('fails/{}.html'.format(asin), 'w', encoding='utf-8') as f:
+                print("**DEBUG:** {}\n {}".format(failed, item))
+                with open('fails/Info_F{}.html'.format(asin), 'w', encoding='utf-8') as f:
                     f.write(response.text)
             yield None
         else:
             self.remove_from_failed('info', params)
+            if self.debug:
+                print("**DEBUG:** {}\n {}".format(failed, item))
+                with open('fails/Info_R{}.html'.format(asin), 'w', encoding='utf-8') as f:
+                    f.write(response.text)
             yield item
 
     def handle_spider_closed(self, reason):

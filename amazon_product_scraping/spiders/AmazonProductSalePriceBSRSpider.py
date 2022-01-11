@@ -68,6 +68,7 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         self.success_counts = kwargs['success_counts']
         self.urls = []
         self.mongo_db = kwargs['mongo_db']
+        self.time = kwargs['time']
 
     def add_to_failed(self, parser_func, params):
         wrapper = [parser_func, params]
@@ -143,21 +144,23 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         #     title = "NA"
         #     failed = True
 
-        try:
-            sale_price = helper.get_sale_price(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            sale_price = "NA"
-            failed = True
+        if not failed:
+            try:
+                sale_price = helper.get_sale_price(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                sale_price = "NA"
+                failed = True
 
-        try:
-            best_seller_rank = helper.get_best_seller_rank_1(response)
-            if best_seller_rank["value"] == "NA":
-                best_seller_rank = helper.get_best_seller_rank_2(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            best_seller_rank = "NA"
-            failed = True
+        if not failed:
+            try:
+                best_seller_rank = helper.get_best_seller_rank_1(response, self.time)
+                if best_seller_rank["value"] == "NA":
+                    best_seller_rank = helper.get_best_seller_rank_2(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                best_seller_rank = "NA"
+                failed = True
 
         try:
             # asin = helper.get_asin(response)
@@ -180,60 +183,70 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         #     product_details = "NA"
         #     failed = True
         
-        try:
-            fullfilled = helper.get_fullfilled(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            fullfilled = "NA"
-            failed = True
+        if not failed:
+            try:
+                fullfilled = helper.get_fullfilled(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                fullfilled = "NA"
+                failed = True
 
-        try:
-            rating = helper.get_rating(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            rating = "NA"
-            failed = True
+        if not failed:
+            try:
+                rating = helper.get_rating(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                rating = "NA"
+                failed = True
 
-        try:
-            total_reviews = helper.get_total_reviews(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            total_reviews = "NA"
-            failed = True
+        if not failed:
+            try:
+                total_reviews = helper.get_total_reviews(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                total_reviews = "NA"
+                failed = True
 
-        try:
-            availability = helper.get_availability(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            availability = "NA"
-            failed = True
+        if not failed:
+            try:
+                availability = helper.get_availability(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                availability = "NA"
+                failed = True
 
-        try:
-            subscription_discount = helper.get_subscription_discount(response)
-        except Exception:
-            logging.error("Exception occurred", exc_info=True)
-            subscription_discount = "NA"
-            failed = True
+        if not failed:
+            try:
+                subscription_discount = helper.get_subscription_discount(response, self.time)
+            except Exception:
+                logging.error("Exception occurred", exc_info=True)
+                subscription_discount = "NA"
+                failed = True
 
-        # item["product_name"] = title
-        item["product_sale_price"] = sale_price
-        item["product_rating"] = rating
-        item["product_total_reviews"] = total_reviews
-        item["product_best_seller_rank"] = best_seller_rank
-        item["product_asin"] = asin
-        # item["product_details"] = product_details
-        item["product_fullfilled"] = fullfilled
-        item["product_availability"] = availability
-        item["product_subscription_discount"] = subscription_discount
+        if not failed:
+            # item["product_name"] = title
+            item["product_sale_price"] = sale_price
+            item["product_rating"] = rating
+            item["product_total_reviews"] = total_reviews
+            item["product_best_seller_rank"] = best_seller_rank
+            item["product_asin"] = asin
+            # item["product_details"] = product_details
+            item["product_fullfilled"] = fullfilled
+            item["product_availability"] = availability
+            item["product_subscription_discount"] = subscription_discount
         
         if failed:
             if self.debug:
-                print("**DEBUG:**/n {}".format(item))
-                with open('fails/{}.html'.format(asin), 'w', encoding='utf-8') as f:
+                print("**DEBUG:** {}\n {}".format(failed, item))
+                with open('fails/BSR_F{}.html'.format(asin), 'w', encoding='utf-8') as f:
                     f.write(response.text)
             yield None
         else:
             self.remove_from_failed('movement', params)
+            if self.debug:
+                print("**DEBUG:** {}\n {}".format(failed, item))
+                with open('fails/BSR_R{}.html'.format(asin), 'w', encoding='utf-8') as f:
+                    f.write(response.text)
             yield item
 
     def handle_spider_closed(self, reason):

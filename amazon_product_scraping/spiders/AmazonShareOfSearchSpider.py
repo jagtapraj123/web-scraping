@@ -263,7 +263,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
             failed = True
 
         try:
-            sale_price = helper.get_sale_price(response)['value']
+            sale_price = helper.get_sale_price(response, self.time)['value']
         except Exception:
             sale_price = "NA"
             failed = True
@@ -275,7 +275,7 @@ class AmazonShareOfSearchSpider(WebScrapingApiSpider):
             failed = True
 
         try:
-            fullfilled = helper.get_fullfilled(response)['value']
+            fullfilled = helper.get_fullfilled(response, self.time)['value']
         except Exception:
             fullfilled = "NA"
             failed = True
