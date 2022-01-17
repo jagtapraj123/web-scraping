@@ -15,7 +15,7 @@ if __name__ == "__main__":
         sos = False,
         mongo_db = "amazon_marketplace_scraping_havells",
         run_summary_file = "run_summary_havells",
-        # company_client = "Havells",
+        company_client = "Havells",
         brand_search_links = [
             "https://www.amazon.in/stores/page/6A91799A-9A7B-4B09-B4C3-04F971A24437",      # Havells All
             "https://www.amazon.in/stores/page/8397608F-5E88-4F70-9CFA-339803CACD83",      # Philips Male Grooming
