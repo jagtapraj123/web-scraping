@@ -237,14 +237,14 @@ class AmazonProductSalePriceBSRSpider(WebScrapingApiSpider):
         
         if failed:
             if self.debug:
-                print("**DEBUG:** {}\n {}".format(failed, item))
+                print("**DEBUG:** {}\n {}".format(failed, str(item).encode('utf-8')))
                 with open('fails/BSR_F{}.html'.format(asin), 'w', encoding='utf-8') as f:
                     f.write(response.text)
             yield None
         else:
             self.remove_from_failed('movement', params)
             if self.debug:
-                print("**DEBUG:** {}\n {}".format(failed, item))
+                print("**DEBUG:** {}\n {}".format(failed, str(item).encode('utf-8')))
                 with open('fails/BSR_R{}.html'.format(asin), 'w', encoding='utf-8') as f:
                     f.write(response.text)
             yield item

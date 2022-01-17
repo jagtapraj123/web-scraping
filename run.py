@@ -6,6 +6,7 @@ from amazon_product_scraping.spiders.AmazonProductInfoSpider import AmazonProduc
 from amazon_product_scraping.spiders.AmazonProductSalePriceBSRSpider import AmazonProductSalePriceBSRSpider
 from amazon_product_scraping.spiders.AmazonProductCommentsSpider import AmazonProductCommentsSpider
 from amazon_product_scraping.spiders.AmazonShareOfSearchSpider import AmazonShareOfSearchSpider
+from amazon_product_scraping.spiders.AmazonBrandSearchListSpider import AmazonBrandSearchListSpider
 from scrapy.utils.project import get_project_settings
 import datetime
 from telegram_notifier import TelegramNotifier
@@ -18,13 +19,16 @@ process = CrawlerRunner(settings=settings)
 def run(
         bsr_100: bool = False, 
         search_list: bool = False, 
+        brand_search: bool = False,
         price_bsr_move: bool = False, 
         comments: bool = False, 
         sos: bool = False, 
         mongo_db: str = 'amazon_marketplace_scraping',
         run_summary_file: str = 'run_summary',
+        company_client: str = "WTC",
         bsr_100_links: list = [],
         search_list_links: list = [],
+        brand_search_links: list = [],
         sos_keywords: list = []
     ):
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -35,6 +39,7 @@ def run(
         f.write("Scraper started : {}\n\n".format(time))
     telegram.send_message("Hi,\nScraper Started: {}\nScraper: {} saving to DB {}".format(time, run_summary_file, mongo_db))
     
+    new_products_added = 0
     if bsr_100:
         # # Top 100 BSR Spider
         failed_urls = []
@@ -53,6 +58,7 @@ def run(
                 start_urls = bsr_100_links,
                 cold_run = cold_run,
                 failed_urls = failed_urls,
+                company_client = company_client,
                 mongo_db = mongo_db,
                 success_counts = success_counts
             )
@@ -75,6 +81,7 @@ def run(
                 telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
         telegram.send_message(telegram_message)
+        new_products_added += total_success_counts['new']
     
     if search_list:
         # # Search List Spider
@@ -94,6 +101,7 @@ def run(
                 start_urls = search_list_links,                
                 cold_run = cold_run,
                 failed_urls = failed_urls,
+                company_client = company_client,
                 mongo_db = mongo_db,
                 success_counts = success_counts
             )
@@ -116,8 +124,52 @@ def run(
                 telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
             f.write("\n")
         telegram.send_message(telegram_message)
+        new_products_added += total_success_counts['new']
 
-    if bsr_100 or search_list:
+    if brand_search:
+        # # Brand Search List Spider
+        failed_urls = []
+        cold_run = True
+        total_success_counts = {
+            'new': 0,
+            'existing': 0
+        }
+        for i in range(10):
+            success_counts = {
+                'new': 0,
+                'existing': 0
+            }
+            yield process.crawl(
+                AmazonBrandSearchListSpider, 
+                start_urls = brand_search_links,
+                cold_run = cold_run,
+                failed_urls = failed_urls,
+                company_client = company_client,
+                mongo_db = mongo_db,
+                success_counts = success_counts
+            )
+            cold_run = False
+            total_success_counts['new'] += success_counts['new']
+            total_success_counts['existing'] += success_counts['existing']
+            with open('{}.log'.format(run_summary_file), 'a') as f:
+                f.write("Run {}:\nFound {} products in AmazonBrandSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n\n".format(i+1, success_counts['new']+success_counts['existing'], success_counts['new'], success_counts['existing']))
+            if len(failed_urls) == 0:
+                break
+        
+        telegram_message = ""
+        with open('{}.log'.format(run_summary_file), 'a') as f:
+            f.write("AmazonBrandSearchListSpider Summary:\nFound {} products in AmazonBrandSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing']))
+            telegram_message += "AmazonBrandSearchListSpider Summary:\nFound {} products in AmazonBrandSearchListSpider\n\t- {} new products were added to DB\n\t- {} products were already in DB\n".format(total_success_counts['new']+total_success_counts['existing'], total_success_counts['new'], total_success_counts['existing'])
+            f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
+            telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
+            for j in range(len(failed_urls)):
+                f.write("\t\t{}. {}\n".format(j+1, failed_urls[j]))
+                telegram_message += "\t\t{}. {}\n".format(j+1, failed_urls[j])
+            f.write("\n")
+        telegram.send_message(telegram_message)
+        new_products_added += total_success_counts['new']
+
+    if (bsr_100 or search_list or brand_search) and new_products_added > 0:
         # # Product Info Spider
         failed_urls = []
         cold_run = True
@@ -248,11 +300,13 @@ def run(
         failed_urls = []
         cold_run = True
         total_success_counts = {
-            'added': 0
+            'added': 0,
+            'ranked': 0
         }
         for i in range(10):
             success_counts = {
-                'added': 0
+                'added': 0,
+                'ranked': 0
             }
             yield process.crawl(
                 AmazonShareOfSearchSpider, 
@@ -260,22 +314,24 @@ def run(
                 cold_run = cold_run,
                 failed_urls = failed_urls,
                 mongo_db = mongo_db,
+                company_client = company_client,
                 keywords = sos_keywords,
-                pages = 5,
+                pages = 1,
                 success_counts = success_counts
             )
             cold_run = False
             total_success_counts['added'] += success_counts['added']
+            total_success_counts['ranked'] += success_counts['ranked']
             print(failed_urls)
             with open('{}.log'.format(run_summary_file), 'a') as f:
-                f.write("Run {}:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} URLs failed\n\n".format(i+1, success_counts['added'], len(failed_urls)))
+                f.write("Run {}:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} were new products\n\t- {} URLs failed\n\n".format(i+1, success_counts['ranked'], success_counts['added'], len(failed_urls)))
             if len(failed_urls) == 0:
                 break
         
         telegram_message = ""
         with open('{}.log'.format(run_summary_file), 'a') as f:
-            f.write("AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n".format(total_success_counts['added']))
-            telegram_message += "AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n".format(total_success_counts['added'])
+            f.write("AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} were new products\n".format(total_success_counts['ranked'], total_success_counts['added']))
+            telegram_message += "AmazonShareOfSearchSpider Summary:\nFound and Added rank of {} products in AmazonShareOfSearchSpider\n\t- {} were new products\n".format(total_success_counts['ranked'], total_success_counts['added'])
             f.write("\tFailed URLs: {}\n".format(len(failed_urls)))
             telegram_message += "\tFailed URLs: {}\n".format(len(failed_urls))
             for j in range(len(failed_urls)):
