@@ -162,7 +162,6 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
             yield None
         else:
             self.remove_from_failed('comms', params)
-            yield item
 
             if self.count < 0 and len(comments) > 0:
                 if (datetime.datetime.now() - comments[-1]['date']).days <= -self.count:
@@ -189,6 +188,7 @@ class AmazonProductCommentsSpider(WebScrapingApiSpider):
                         #     "proxy": "http://scraperapi:1ee5ce80f3bbdbad4407afda1384b61e@proxy-server.scraperapi.com:8001"
                         # },
                     )
+            yield item
 
     def handle_spider_closed(self, reason):
 
